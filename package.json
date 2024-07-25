@@ -1,0 +1,49 @@
+{
+  "name": "seven-gram",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "Telegram userbot written on Nodejs. Support popular miniapps like Hamster Kombat, Blum, TapSwap, Dogs, Major, OKX Racer and others.",
+  "author": {
+    "name": "pvmsnd",
+    "email": "pvmnsd@gmail.com"
+  },
+  "license": "MIT",
+  "main": "dist/main.js",
+  "engines": {
+    "node": "^20"
+  },
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "postbuild": "tsc-alias",
+    "build": "tsc",
+    "build:watch": "concurrently \"tsc --watch\" \"tsc-alias --watch\"",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "chalk": "^5.3.0",
+    "consola": "^3.2.3",
+    "dotenv": "^16.4.5",
+    "lodash-es": "^4.17.21",
+    "lowdb": "^7.0.1",
+    "object-hash": "^3.0.0",
+    "prompts": "^2.4.2",
+    "telegraf": "^4.16.3",
+    "telegram": "^2.22.2",
+    "toad-scheduler": "^3.0.1"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^2.23.2",
+    "@types/lodash-es": "^4.17.12",
+    "@types/object-hash": "^3.0.6",
+    "@types/prompts": "^2.4.9",
+    "concurrently": "^8.2.2",
+    "eslint": "9.5.0",
+    "nodemon": "^3.1.2",
+    "rimraf": "^5.0.7",
+    "tsc-alias": "^1.8.10",
+    "type-fest": "^4.23.0",
+    "typescript": "^5.4.5"
+  }
+}
