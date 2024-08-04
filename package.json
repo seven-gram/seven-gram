@@ -17,14 +17,17 @@
     "postbuild": "tsc-alias",
     "build": "tsc",
     "build:watch": "concurrently \"tsc --watch\" \"tsc-alias --watch\"",
+    "start": "node dist/main.js",
     "lint": "eslint",
     "lint:fix": "eslint --fix"
   },
   "dependencies": {
+    "@faker-js/faker": "^8.4.1",
     "axios": "^1.7.2",
     "chalk": "^5.3.0",
     "consola": "^3.2.3",
     "dotenv": "^16.4.5",
+    "humanize-duration": "^3.32.1",
     "lodash-es": "^4.17.21",
     "lowdb": "^7.0.1",
     "object-hash": "^3.0.0",
@@ -35,6 +38,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.23.2",
+    "@types/humanize-duration": "^3.27.4",
     "@types/lodash-es": "^4.17.12",
     "@types/object-hash": "^3.0.6",
     "@types/prompts": "^2.4.9",

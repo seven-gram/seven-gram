@@ -1,8 +1,8 @@
-import { hamsterMiniApp } from './entries/hamster.js'
-// import { okxRacerMiniApp } from './entries/okx-racer.js'
-import { defineMiniApps } from './helpers.js'
+import { hamsterMiniApp } from './entries/hamster/index.js'
+import { defineMiniApps } from './helpers/define.js'
+
+export { initMiniApps } from './helpers/init.js'
 
 export const miniAppsMap = defineMiniApps({
   hamster: hamsterMiniApp,
-  // "okx-racer": okxRacerMiniApp
 })

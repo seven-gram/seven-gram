@@ -1,5 +1,5 @@
 .env
 node_modules
 /dist
-/config.json
+/databases
 /sessions.json

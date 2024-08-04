@@ -17,7 +17,7 @@
     "src"
   ],
   "exclude": [
-    "/config.json",
+    "/databases",
     "/sessions.json",
     "/dist"
   ]

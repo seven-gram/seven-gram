@@ -16,7 +16,7 @@ interface Sessions {
   sessions: Session[]
 }
 
-export const useSessions = createGlobalState(async () => {
+export const useSessionsStore = createGlobalState(async () => {
   const sessionsDatabase = await JSONFilePreset<Sessions>('sessions.json', {
     sessions: [],
   })

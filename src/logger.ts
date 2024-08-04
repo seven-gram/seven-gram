@@ -1,45 +1,53 @@
-import prompts from 'prompts'
-import type { ChalkInstance } from 'chalk'
-import chalk from 'chalk'
-import type { MiniAppName } from './mini-apps/helpers.js'
+import type { MiniAppName } from './mini-apps/enums.js'
+import { useBots } from './telegram/index.js'
 
 type LoggerName = Uppercase<MiniAppName> | 'SYSTEM'
-
-const chalkToMiniAppNameMap: Record<LoggerName, ChalkInstance> = {
-  SYSTEM: chalk.bold.bgGray,
-  HAMSTER: chalk.bold.bgYellow,
-  // "OKX-RACER": chalk.bold.bgGreen,
-}
 
 export type Logger = ReturnType<typeof createLogger>
 
 export function createLogger(name: LoggerName = 'SYSTEM') {
-  const formattedName = chalkToMiniAppNameMap[name](`   ${name}   `)
+  interface MessagesObject { plainMessage: string, markdownMessage: string }
+  type PlainMessageOrMessagesObject = string | MessagesObject
 
-  const info = (message: string) => {
-    console.log(`📜 ${formattedName}   ${chalk.bold(message)}`)
-  }
+  const logMethodFactory = (callback: (rootMessage: MessagesObject) => MessagesObject) =>
+    async (message: PlainMessageOrMessagesObject) => {
+      const { markdownMessage, plainMessage } = callback(typeof message === 'object'
+        ? message
+        : {
+            markdownMessage: message,
+            plainMessage: message,
+          })
 
-  const success = (message: string) => {
-    console.log(`✅️ ${formattedName}   ${chalk.bold.green(message)}`)
-  }
+      console.debug(plainMessage)
 
-  const error = (message: string) => {
-    console.log(`🚨 ${formattedName}   ${chalk.bold.red(message)}`)
-  }
+      try {
+        const { logger: loggerBot } = await useBots()
+        await loggerBot.sendMessage(markdownMessage, {
+          parse_mode: 'Markdown',
+        })
+      }
+      catch {}
+    }
 
-  async function prompt<
-    String extends string,
-    Options extends Parameters<typeof prompts>[1],
-  >(message: string, questions: prompts.PromptObject<String>, options?: Options) {
-    return prompts({ ...questions, message: `${formattedName}   ${message}` }, options)
-  }
+  const info = logMethodFactory(message => ({
+    plainMessage: `📜 ${name}   ${message.plainMessage}`,
+    markdownMessage: `📜 *${name}*   ${message.markdownMessage}`,
+  }))
+
+  const success = logMethodFactory(message => ({
+    plainMessage: `✅️ ${name}   ${message.plainMessage}`,
+    markdownMessage: `✅️ *${name}*   ${message.markdownMessage}`,
+  }))
+
+  const error = logMethodFactory(message => ({
+    plainMessage: `🚨 ${name}   ${message.plainMessage}`,
+    markdownMessage: `🚨 *${name}*   ${message.markdownMessage}`,
+  }))
 
   return {
     info,
     success,
     error,
-    prompt,
   }
 }
 
