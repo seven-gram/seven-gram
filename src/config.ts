@@ -1,3 +1,4 @@
+import { existsSync, mkdirSync } from 'node:fs'
 import { JSONFilePreset } from 'lowdb/node'
 import type { BotName } from 'src/telegram/index.js'
 import type { Session } from './sessions.js'
@@ -15,7 +16,13 @@ interface Config {
 }
 
 export const useConfigStore = createGlobalState(async () => {
-  const configDatabase = await JSONFilePreset<Config>('databases/config.json', {
+  const dir = 'databases'
+
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true })
+  }
+
+  const configDatabase = await JSONFilePreset<Config>(`${dir}/config.json`, {
     botsOptions: {},
   })
 
