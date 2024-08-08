@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync } from 'node:fs'
 import { JSONFileSyncPreset } from 'lowdb/node'
-import { createGlobalState } from './shared.js'
+import { memoize } from 'lodash-es'
 
 interface Config {
   userBot?: {
@@ -15,7 +15,7 @@ interface Config {
   } | null
 }
 
-export const useConfigDatabase = createGlobalState(() => {
+export const useConfigDatabase = memoize(() => {
   const dir = 'databases'
 
   if (!existsSync(dir)) {

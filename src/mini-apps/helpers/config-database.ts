@@ -1,11 +1,11 @@
 import { existsSync, mkdirSync } from 'node:fs'
-import { createGlobalState } from 'src/shared.js'
 import { JSONFileSyncPreset } from 'lowdb/node'
+import { memoize } from 'lodash-es'
 import type { MiniAppName } from '../enums.js'
 import type { MiniAppConfig, MiniAppConfigDatabase } from '../types.js'
 
 export function createMiniAppConfigDatabase(name: MiniAppName) {
-  return createGlobalState((): MiniAppConfigDatabase => {
+  return memoize((): MiniAppConfigDatabase => {
     const dir = 'databases/mini-apps'
 
     if (!existsSync(dir)) {

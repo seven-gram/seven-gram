@@ -1,9 +1,9 @@
 import { TelegramClient } from 'telegram'
 import { StringSession } from 'telegram/sessions/index.js'
 import prompts from 'prompts'
+import { memoize } from 'lodash-es'
 import { useConfigDatabase } from '../../config.js'
 import type { OmitFirstArg } from '../../shared.js'
-import { createGlobalState } from '../../shared.js'
 import { TelegramHelpers, TelegramStatic, UserBotHelpers } from '../index.js'
 
 async function initUserBot() {
@@ -83,7 +83,7 @@ async function initUserBot() {
   }
 }
 
-export const useUserBot = createGlobalState(async () => {
+export const useUserBot = memoize(async () => {
   const { client, me, fetchMe, loggerChannel } = await initUserBot()
 
   const helpers: {
