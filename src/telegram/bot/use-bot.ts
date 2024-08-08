@@ -51,7 +51,7 @@ async function initBot() {
 
   const configDatabase = useConfigDatabase()
   if (!configDatabase.database.data.bot) {
-    await systemLogger.info(`Starting creation of ${name} bot`)
+    await systemLogger.info(`Starting bot creation`)
     const createBotResult = await createBot()
     configDatabase.setBot({
       token: createBotResult.client.telegram.token,
