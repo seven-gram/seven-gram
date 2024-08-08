@@ -110,9 +110,13 @@ async function initBot() {
   }
 }
 
+let isBotInited = false
+export const checkIsBotInited = () => isBotInited
+
 export const useBot = memoize(async () => {
   const userBot = await useUserBot()
   const { client, me, fetchMe } = await initBot()
+  isBotInited = true
 
   const sendMessageToMe = client.telegram.sendMessage.bind(client.telegram, userBot.me.id.toString())
 

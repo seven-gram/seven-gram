@@ -1,4 +1,5 @@
 import type { MiniAppName } from './mini-apps/enums.js'
+import { checkIsBotInited } from './telegram/bot/use-bot.js'
 import { TelegramHelpers, useBot, useUserBot } from './telegram/index.js'
 
 type LoggerName = Uppercase<MiniAppName> | 'SYSTEM'
@@ -20,18 +21,20 @@ export function createLogger(name: LoggerName = 'SYSTEM') {
 
       console.debug(plainMessage)
 
-      try {
-        const userBot = await useUserBot()
-        const bot = await useBot()
-        await bot.client.telegram.sendMessage(
-          TelegramHelpers.mapToPeerId(userBot.loggerChannel.id, 'channel'),
-          markdownMessage,
-          {
-            parse_mode: 'Markdown',
-          },
-        )
+      if (checkIsBotInited()) {
+        try {
+          const userBot = await useUserBot()
+          const bot = await useBot()
+          await bot.client.telegram.sendMessage(
+            TelegramHelpers.mapToPeerId(userBot.loggerChannel.id, 'channel'),
+            markdownMessage,
+            {
+              parse_mode: 'Markdown',
+            },
+          )
+        }
+        catch {}
       }
-      catch {}
     }
 
   const info = logMethodFactory(message => ({
