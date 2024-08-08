@@ -34,7 +34,7 @@ You can install these by [this link](https://nodejs.org/en/download/)
 1. Go to [my.telegram.org](https://my.telegram.org) and log in using your phone number.
 
 2. Select **"API development tools"** and fill out the form to register a new application.
-3. Note down the `API_ID` and `API_HASH` in `.env` file provided after registering your application.
+3. Heare you can cipy your `API_ID` and `API_HASH`
 
 ## 🖵 Screenshots
 
