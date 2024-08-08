@@ -63,7 +63,6 @@ export const hamsterMiniApp = defineMiniApp({
         const { clickerUser } = await api.getClickerUser()
         const gameSleepTimeInSeconds = faker.helpers.rangeToNumber({ min: 15, max: 40 })
         const cipher = HamsterHelpers.getMiniGameCipher(clickerUser.id, gameSleepTimeInSeconds)
-        await logger.info(`cipher: ${cipher}`)
         await logger.info(`Sleep for ${gameSleepTimeInSeconds} seconds`)
         await api.startDailyKeysMinigame()
         await sleep(convertToMilliseconds({ seconds: gameSleepTimeInSeconds }))
