@@ -4,6 +4,7 @@ import { authByTelegramWebapp } from './auth.js'
 import { getClickerUser } from './clicker-user.js'
 import { getConfig } from './config.js'
 import { tap } from './tap.js'
+import { claimDailyKeysMinigame, startDailyKeysMinigame } from './minigame.js'
 
 export const HamsterApi = defineMiniAppApi({
   getAccountInfo,
@@ -11,4 +12,6 @@ export const HamsterApi = defineMiniAppApi({
   getClickerUser,
   tap,
   getConfig,
+  startDailyKeysMinigame,
+  claimDailyKeysMinigame,
 })

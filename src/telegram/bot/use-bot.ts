@@ -51,22 +51,22 @@ async function initBot() {
 
   const configDatabase = useConfigDatabase()
   if (!configDatabase.database.data.bot) {
-    systemLogger.info(`Starting creation of ${name} bot`)
+    await systemLogger.info(`Starting creation of ${name} bot`)
     const createBotResult = await createBot()
     configDatabase.setBot({
       token: createBotResult.client.telegram.token,
       username: createBotResult.username,
     })
-    systemLogger.success(`${createBotResult.name} bot created`)
+    await systemLogger.success(`${createBotResult.name} bot created`)
 
     try {
-      systemLogger.info(`Adding bot ${createBotResult.name} to special folder`)
+      await systemLogger.info(`Adding bot ${createBotResult.name} to special folder`)
       await userBot.client.sendMessage(createBotResult.username, { message: TelegramMeta.startBotCommand })
       await userBot.addEntitiesToSpecialFolder([createBotResult.username])
     }
     catch (error) {
       if (error instanceof Error)
-        systemLogger.error(`Error occurs while addind bot ${name} to special folder. \`\`\`${error.message}\`\`\``)
+        await systemLogger.error(`Error occurs while addind bot ${name} to special folder. \`\`\`${error.message}\`\`\``)
     }
 
     client = createBotResult.client

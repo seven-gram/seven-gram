@@ -43,19 +43,20 @@ export async function initMiniApps() {
             await callbackEntity.callback({
               ...miniApp.public,
               axiosClient,
+              userBot,
               api: Object.fromEntries(
                 Object.entries(miniApp.api).map(([key, value]) => [key, (value as AnyFn).bind(globalThis, axiosClient)]),
               ) as Record<keyof typeof miniApp.api, AnyFn>,
             })
 
-            miniApp.public.logger.success({
+            await miniApp.public.logger.success({
               plainMessage: `Module |${callbackEntity.name}| was executed succesfully.\nNext execution after ${nextJobExecutionDurationString}`,
               markdownMessage: `Module _|${callbackEntity.name}|_ was executed succesfully\n\nNext execution after _${nextJobExecutionDurationString}_`,
             })
           }
           catch (error) {
             if (error instanceof Error) {
-              miniApp.public.logger.error({
+              await miniApp.public.logger.error({
                 plainMessage: `An unhandled error occurs.\nMessage: ${error.message}\nNext execution after ${nextJobExecutionDurationString}`,
                 markdownMessage: `An unhandled error occurs.\`\`\`Message: ${error.message}\`\`\`\nNext execution after _${nextJobExecutionDurationString}_`,
               })
@@ -74,12 +75,22 @@ export async function initMiniApps() {
           )
         }
 
+        const callbackEntityConfig = configDatabase.getCallbackEntity(userBotId, {
+          miniAppName: miniApp.name,
+          callbackEntityName: callbackEntity.name,
+          callbackEntityIndex,
+        })
+        const nextExecutionDateExpired = !callbackEntityConfig || new Date(callbackEntityConfig.nextExecutionDate) <= new Date()
+
         if (callbackEntity.shedulerType === 'cron') {
           const job = new CronJob(
             callbackEntity.cronExpression,
             () => sheduledHandler(new CronTime(callbackEntity.cronExpression).getTimeout()),
           )
           job.start()
+          if (nextExecutionDateExpired) {
+            sheduledHandler(new CronTime(callbackEntity.cronExpression).getTimeout())
+          }
         }
         else if (callbackEntity.shedulerType === 'timeout') {
           const timeoutSheduledHandler = async () => {
@@ -87,12 +98,7 @@ export async function initMiniApps() {
             await sheduledHandler(duration)
             setTimeout(timeoutSheduledHandler, duration)
           }
-          const callbackEntityConfig = configDatabase.getCallbackEntity(userBotId, {
-            miniAppName: miniApp.name,
-            callbackEntityName: callbackEntity.name,
-            callbackEntityIndex,
-          })
-          if (!callbackEntityConfig || new Date(callbackEntityConfig.nextExecutionDate) <= new Date()) {
+          if (nextExecutionDateExpired) {
             timeoutSheduledHandler()
           }
           else {

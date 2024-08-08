@@ -3,6 +3,7 @@ import type { Logger } from 'src/logger.js'
 import type { LowSync } from 'lowdb'
 import type axios from 'axios'
 import type { OmitFirstArg } from 'src/shared.js'
+import type { UserBot } from 'src/telegram/user-bot/types.js'
 import type { MiniAppName } from './enums.js'
 
 export type MiniAppApi = {
@@ -49,6 +50,7 @@ export interface MiniAppConfigDatabase {
 
 type MiniAppCallback<Name, Api> = (context: MiniApp<Name, Api>['public'] & {
   axiosClient: AxiosInstance
+  userBot: UserBot
   api: {
     [Key in keyof Api]: OmitFirstArg<Api[Key]>
   }
