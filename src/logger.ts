@@ -1,5 +1,5 @@
 import type { MiniAppName } from './mini-apps/enums.js'
-import { useBots } from './telegram/index.js'
+import { TelegramHelpers, useBot, useUserBot } from './telegram/index.js'
 
 type LoggerName = Uppercase<MiniAppName> | 'SYSTEM'
 
@@ -21,10 +21,15 @@ export function createLogger(name: LoggerName = 'SYSTEM') {
       console.debug(plainMessage)
 
       try {
-        const { logger: loggerBot } = await useBots()
-        await loggerBot.sendMessage(markdownMessage, {
-          parse_mode: 'Markdown',
-        })
+        const userBot = await useUserBot()
+        const bot = await useBot()
+        await bot.client.telegram.sendMessage(
+          TelegramHelpers.mapToPeerId(userBot.loggerChannel.id, 'channel'),
+          markdownMessage,
+          {
+            parse_mode: 'Markdown',
+          },
+        )
       }
       catch {}
     }

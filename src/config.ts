@@ -1,38 +1,42 @@
 import { existsSync, mkdirSync } from 'node:fs'
-import { JSONFilePreset } from 'lowdb/node'
-import type { BotName } from 'src/telegram/index.js'
-import type { Session } from './sessions.js'
+import { JSONFileSyncPreset } from 'lowdb/node'
 import { createGlobalState } from './shared.js'
 
-type BotNameToBotOptionMap = {
-  [Name in BotName]?: {
-    token: string
-  }
-}
-
 interface Config {
-  mainSession?: Session
-  botsOptions: BotNameToBotOptionMap
+  userBot?: {
+    apiId: number
+    apiHash: string
+    sessionString: string
+    channels: Record<string, string | null>
+  }
+  bot?: {
+    token: string
+    username: string
+  } | null
 }
 
-export const useConfigStore = createGlobalState(async () => {
+export const useConfigDatabase = createGlobalState(() => {
   const dir = 'databases'
 
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true })
   }
 
-  const configDatabase = await JSONFilePreset<Config>(`${dir}/config.json`, {
-    botsOptions: {},
-  })
+  const database = JSONFileSyncPreset<Config>(`${dir}/config.json`, {})
 
-  const setMainSession = async (session: Session) => {
-    configDatabase.data.mainSession = session
-    await configDatabase.write()
+  const setUserBot = (userBot: Config['userBot']) => {
+    database.data.userBot = userBot
+    database.write()
+  }
+
+  const setBot = (bot: Config['bot'] | null) => {
+    database.data.bot = bot
+    database.write()
   }
 
   return {
-    configDatabase,
-    setMainSession,
+    database,
+    setUserBot,
+    setBot,
   }
 })

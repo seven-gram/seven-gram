@@ -1,8 +1,8 @@
 import { CronJob, CronTime } from 'cron'
 import humanizeDuration from 'humanize-duration'
-import { useUserBot } from 'src/telegram/user-bot.js'
 import type { AxiosInstance } from 'axios'
 import axios from 'axios'
+import { useUserBot } from 'src/telegram/index.js'
 import type { MiniAppsMap } from '../types.js'
 
 export async function initMiniApps(miniAppsMap: MiniAppsMap) {

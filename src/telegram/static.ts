@@ -1,3 +1,20 @@
+import type { TelegramEnums } from './index.js'
+
+export const DIALOG_FILTER = {
+  title: 'Seven Gram',
+  emoticon: '❤️',
+}
+
+export const CHANNELS: Record<TelegramEnums.ChannelType, {
+  title: string
+  about: string
+}> = {
+  logger: {
+    title: 'Seven Gram | Logs',
+    about: 'Here you can see your logs',
+  },
+}
+
 export const DEFAULT_FINGERPRINT = {
   version: '4.2.1',
   visitorId: '',
