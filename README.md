@@ -78,5 +78,6 @@ You can install these by [this link](https://nodejs.org/en/download/)
 
 ## 🖵 Screenshots
 
-![alt text](.git/images/image.png)
 Log info to special channel on your main telegram accout
+
+![image](https://github.com/user-attachments/assets/17233eea-6ff3-4f62-8e42-17aa33dd97bb)
