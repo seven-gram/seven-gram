@@ -2,30 +2,61 @@ import type { AxiosInstance, HeadersDefaults } from 'axios'
 import type { Logger } from 'src/logger.js'
 import type { LowSync } from 'lowdb'
 import type axios from 'axios'
+import type { OmitFirstArg } from 'src/shared.js'
 import type { MiniAppName } from './enums.js'
+
+export type MiniAppApi = {
+  [key in string]: (axiosClient: AxiosInstance, ...args: any[]) => Promise<any | void | never>
+}
+
+interface CallbackEntityConfig {
+  nextExecutionDate: string
+}
 
 export interface MiniAppConfig {
   sessions: {
     [Id in number]?: {
-      headersWrapper: {
+      headersWrapper?: {
         expirationDate: string
         headers: HeadersDefaults
+      }
+      callbackEntities?: {
+        [Hash in string]?: CallbackEntityConfig
       }
     }
   }
 }
-export interface MiniAppConfigDatabase {
-  database: LowSync<MiniAppConfig>
-  updateSessionLoginHeaders: (id: number, headers: HeadersDefaults, lifetime: number) => void
+
+interface CallbackEntityConfigHashOptions {
+  miniAppName: string
+  callbackEntityName: string
+  callbackEntityIndex: number
 }
 
-type MiniAppCallback = <Name>(context: MiniApp<Name>['public'] & {
+export interface MiniAppConfigDatabase {
+  database: LowSync<MiniAppConfig>
+  updateSessionLoginHeaders: (sessionId: number, headers: HeadersDefaults, lifetime: number) => void
+  updateCallbackEntity: (
+    sessionId: number,
+    entityOptions: CallbackEntityConfigHashOptions,
+    updateInput: CallbackEntityConfig
+  ) => void
+  getCallbackEntity: (
+    sessionId: number,
+    entityOptions: CallbackEntityConfigHashOptions
+  ) => CallbackEntityConfig | undefined
+}
+
+type MiniAppCallback<Name, Api> = (context: MiniApp<Name, Api>['public'] & {
   axiosClient: AxiosInstance
+  api: {
+    [Key in keyof Api]: OmitFirstArg<Api[Key]>
+  }
 }) => void | Promise<void>
 
-type MiniAppCallbackEntity = {
+type MiniAppCallbackEntity<Name, Api> = {
   name: string
-  callback: MiniAppCallback
+  callback: MiniAppCallback<Name, Api>
 } & ({
   shedulerType: 'cron'
   cronExpression: string
@@ -34,22 +65,19 @@ type MiniAppCallbackEntity = {
   timeout: () => number
 })
 
-export interface DefineMiniAppOptions<Name> {
+export interface DefineMiniAppOptions<Name, Api> {
   name: Name
+  api: Api
   configDatabase: MiniAppConfigDatabase
   login: {
     callback: (createAxios: typeof axios.create) => Promise<AxiosInstance>
     lifetime: number
   }
-  callbackEntities: MiniAppCallbackEntity[]
+  callbackEntities: MiniAppCallbackEntity<Name, Api>[]
 }
 
-export interface MiniApp<Name> extends DefineMiniAppOptions<Name> {
+export interface MiniApp<Name = MiniAppName, Api = MiniAppApi> extends DefineMiniAppOptions<Name, Api> {
   public: {
     logger: Logger
   }
-}
-
-export type MiniAppsMap = {
-  [Name in MiniAppName]: MiniApp<Name>
 }

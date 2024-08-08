@@ -1,18 +1,17 @@
 import { TelegramHelpers, useUserBot } from 'src/telegram/index.js'
-import axios from 'axios'
+import type { AxiosInstance } from 'axios'
 import { HamsterStatic } from '../static.js'
 
 interface AuthByTelegramWebapp {
   authToken?: string
 }
 
-export async function authByTelegramWebapp(): Promise<Required<AuthByTelegramWebapp>> {
+export async function authByTelegramWebapp(axiosClient: AxiosInstance): Promise<Required<AuthByTelegramWebapp>> {
   const userBot = await useUserBot()
   const fingerprint = TelegramHelpers.getFingerprint()
   const webAppData = await userBot.getWebAppData(HamsterStatic.HAMSTER_BOT_ENTITY, HamsterStatic.HAMSTER_URL)
 
-  const response = await axios
-    .create({ headers: HamsterStatic.DEFAULT_HEADERS })
+  const response = await axiosClient
     .post<AuthByTelegramWebapp>(
       'https://api.hamsterkombatgame.io/auth/auth-by-telegram-webapp',
       {

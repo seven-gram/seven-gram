@@ -39,7 +39,10 @@ interface GetAccountInfoResponse {
 }
 
 export async function getAccountInfo(axiosClient: AxiosInstance): Promise<GetAccountInfoResponse> {
-  const response = await axiosClient.post<GetAccountInfoResponse>('https://api.hamsterkombatgame.io/auth/account-info', null)
+  const response = await axiosClient.post<GetAccountInfoResponse>(
+    'https://api.hamsterkombatgame.io/auth/account-info',
+    null,
+  )
 
   return response.data
 }

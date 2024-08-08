@@ -3,20 +3,22 @@ import humanizeDuration from 'humanize-duration'
 import type { AxiosInstance } from 'axios'
 import axios from 'axios'
 import { useUserBot } from 'src/telegram/index.js'
-import type { MiniAppsMap } from '../types.js'
+import type { AnyFn } from 'src/shared.js'
+import { miniApps } from '../index.js'
 
-export async function initMiniApps(miniAppsMap: MiniAppsMap) {
+export async function initMiniApps() {
   const usersBots = [await useUserBot()]
   for (const userBot of usersBots) {
     const userBotId = Number(userBot.me.id)
 
-    for (const miniApp of Object.values(miniAppsMap)) {
+    for (const miniApp of miniApps) {
       const configDatabase = miniApp.configDatabase
+      const session = configDatabase.database.data.sessions[userBotId]
 
-      for (const callbackEntity of miniApp.callbackEntities) {
+      for (const [callbackEntity, callbackEntityIndex] of miniApp.callbackEntities.map((value, index) => [value, index] as const)) {
         let axiosClient: AxiosInstance | undefined
         const useAxiosClient = async (): Promise<AxiosInstance> => {
-          const headersWrapper = configDatabase.database.data.sessions[userBotId]?.headersWrapper
+          const headersWrapper = session?.headersWrapper
           const isHeadersExpired = !headersWrapper || new Date(headersWrapper.expirationDate) <= new Date()
 
           if (isHeadersExpired) {
@@ -37,9 +39,13 @@ export async function initMiniApps(miniAppsMap: MiniAppsMap) {
           const nextJobExecutionDurationString = humanizeDuration(duration)
 
           try {
+            const axiosClient = await useAxiosClient()
             await callbackEntity.callback({
               ...miniApp.public,
-              axiosClient: await useAxiosClient(),
+              axiosClient,
+              api: Object.fromEntries(
+                Object.entries(miniApp.api).map(([key, value]) => [key, (value as AnyFn).bind(globalThis, axiosClient)]),
+              ) as Record<keyof typeof miniApp.api, AnyFn>,
             })
 
             miniApp.public.logger.success({
@@ -55,6 +61,17 @@ export async function initMiniApps(miniAppsMap: MiniAppsMap) {
               })
             }
           }
+          configDatabase.updateCallbackEntity(
+            userBotId,
+            {
+              miniAppName: miniApp.name,
+              callbackEntityName: callbackEntity.name,
+              callbackEntityIndex,
+            },
+            {
+              nextExecutionDate: new Date(Date.now() + duration).toJSON(),
+            },
+          )
         }
 
         if (callbackEntity.shedulerType === 'cron') {
@@ -70,7 +87,17 @@ export async function initMiniApps(miniAppsMap: MiniAppsMap) {
             await sheduledHandler(duration)
             setTimeout(timeoutSheduledHandler, duration)
           }
-          setTimeout(timeoutSheduledHandler, callbackEntity.timeout())
+          const callbackEntityConfig = configDatabase.getCallbackEntity(userBotId, {
+            miniAppName: miniApp.name,
+            callbackEntityName: callbackEntity.name,
+            callbackEntityIndex,
+          })
+          if (!callbackEntityConfig || new Date(callbackEntityConfig.nextExecutionDate) <= new Date()) {
+            timeoutSheduledHandler()
+          }
+          else {
+            setTimeout(timeoutSheduledHandler, callbackEntity.timeout())
+          }
         }
       }
     }

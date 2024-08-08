@@ -1,8 +1,10 @@
 import { createLogger } from 'src/logger.js'
-import type { DefineMiniAppOptions, MiniApp, MiniAppsMap } from '../types.js'
+import type { DefineMiniAppOptions, MiniApp, MiniAppApi } from '../types.js'
 import type { MiniAppName } from '../enums.js'
 
-export function defineMiniApp<Name extends MiniAppName>(options: DefineMiniAppOptions<Name>): MiniApp<Name> {
+export function defineMiniApp<Name extends MiniAppName, Api extends MiniAppApi>(
+  options: DefineMiniAppOptions<Name, Api>,
+): MiniApp<Name, Api> {
   const logger = createLogger(options.name.toUpperCase() as Uppercase<typeof options.name>)
 
   return {
@@ -12,4 +14,6 @@ export function defineMiniApp<Name extends MiniAppName>(options: DefineMiniAppOp
     },
   }
 }
-export const defineMiniApps = (miniApps: MiniAppsMap) => miniApps
+export const defineMiniApps = <TMiniApps extends MiniApp<MiniAppName, any>[]>(miniAppsMap: TMiniApps) => miniAppsMap
+
+export const defineMiniAppApi = <Api extends MiniAppApi>(api: Api): Api => api

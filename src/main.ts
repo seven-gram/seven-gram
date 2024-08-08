@@ -1,3 +1,3 @@
-import { initMiniApps, miniAppsMap } from './mini-apps/index.js'
+import { initMiniApps } from './mini-apps/index.js'
 
-await initMiniApps(miniAppsMap)
+await initMiniApps()

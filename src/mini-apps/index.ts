@@ -3,6 +3,6 @@ import { defineMiniApps } from './helpers/define.js'
 
 export { initMiniApps } from './helpers/init.js'
 
-export const miniAppsMap = defineMiniApps({
-  hamster: hamsterMiniApp,
-})
+export const miniApps = defineMiniApps([
+  hamsterMiniApp,
+])
