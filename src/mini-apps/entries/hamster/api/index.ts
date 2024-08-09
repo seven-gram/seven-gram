@@ -5,6 +5,7 @@ import { getClickerUser } from './clicker-user.js'
 import { getConfig } from './config.js'
 import { tap } from './tap.js'
 import { claimDailyKeysMinigame, startDailyKeysMinigame } from './minigame.js'
+import { claimDailyCipher } from './daily-cipher.js'
 
 export const HamsterApi = defineMiniAppApi({
   getAccountInfo,
@@ -14,4 +15,5 @@ export const HamsterApi = defineMiniAppApi({
   getConfig,
   startDailyKeysMinigame,
   claimDailyKeysMinigame,
+  claimDailyCipher,
 })

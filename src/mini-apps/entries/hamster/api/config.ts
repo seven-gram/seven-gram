@@ -1,11 +1,5 @@
 import type { AxiosInstance } from 'axios'
-
-interface DailyCipher {
-  cipher: string
-  bonusCoins: number
-  isClaimed: boolean
-  remainSeconds: number
-}
+import type { HamsterTypes } from '../index.js'
 
 interface DailyKeysMiniGame {
   startDate: Date
@@ -20,7 +14,7 @@ interface DailyKeysMiniGame {
 }
 
 interface GetConfigResponse {
-  dailyCipher: DailyCipher
+  dailyCipher: HamsterTypes.DailyCipher
   feature: string[]
   dailyKeysMiniGame: DailyKeysMiniGame
 }

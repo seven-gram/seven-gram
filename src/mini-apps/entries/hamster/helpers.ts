@@ -13,3 +13,8 @@ export function getMiniGameCipher(userId: string, gameSleepTime: number): string
 
   return encodedBody
 }
+
+export function decodeDailyCipher(cipher: string): string {
+  const encoded = `${cipher.substring(0, 3)}${cipher.substring(4, cipher.length)}`
+  return Buffer.from(encoded, 'base64').toString('utf-8')
+}

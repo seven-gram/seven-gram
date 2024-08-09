@@ -75,5 +75,22 @@ export const hamsterMiniApp = defineMiniApp({
       shedulerType: 'cron',
       cronExpression: `0 ${faker.helpers.rangeToNumber({ min: 12, max: 16 })} * * *`,
     },
+    {
+      name: 'Daily Cipher',
+      async callback({ logger, api }) {
+        const { dailyCipher: { cipher, isClaimed } } = await api.getConfig()
+
+        if (isClaimed) {
+          logger.info(`Daily cipher is already claimed`)
+          return
+        }
+
+        const decodedCipher = HamsterHelpers.decodeDailyCipher(cipher)
+        const { dailyCipher: { bonusCoins } } = await api.claimDailyCipher(decodedCipher)
+        logger.success(`Successfully claim daily cipher: ${decodedCipher}}\nBonus: ${bonusCoins}`)
+      },
+      shedulerType: 'cron',
+      cronExpression: `${faker.helpers.rangeToNumber({ min: 1, max: 59 })} 13 * * *`,
+    },
   ],
 })
