@@ -55,25 +55,39 @@ export const hamsterMiniApp = defineMiniApp({
           },
         } = await api.getConfig()
 
-        if (isClaimed || remainSecondsToNextAttempt >= 0) {
-          await logger.info(`Minigame is already claimed. Remain time to next game is ${remainSecondsToNextAttempt} seconds`)
+        if (isClaimed) {
+          await logger.info(`Minigame is already claimed.`)
           return
         }
 
-        const { clickerUser } = await api.getClickerUser()
-        const gameSleepTimeInSeconds = faker.helpers.rangeToNumber({ min: 15, max: 40 })
-        const cipher = HamsterHelpers.getMiniGameCipher(clickerUser.id, gameSleepTimeInSeconds)
-        await logger.info(`Sleep for ${gameSleepTimeInSeconds} seconds`)
-        await api.startDailyKeysMinigame()
-        await sleep(convertToMilliseconds({ seconds: gameSleepTimeInSeconds }))
-        const { clickerUser: newClickerUser, dailyKeysMiniGame } = await api.claimDailyKeysMinigame(cipher)
-        if (dailyKeysMiniGame.isClaimed) {
-          const keysRecieved = newClickerUser.totalKeys - clickerUser.totalKeys
-          await logger.info(`Key is succesfully claimed\nKeys recieved: ${keysRecieved}\nTotal keys: ${newClickerUser.totalKeys}`)
+        async function completeMinigame() {
+          const { clickerUser } = await api.getClickerUser()
+          const gameSleepTimeInSeconds = faker.helpers.rangeToNumber({ min: 15, max: 40 })
+          const cipher = HamsterHelpers.getMiniGameCipher(clickerUser.id, gameSleepTimeInSeconds)
+          await logger.info(`Sleep for ${gameSleepTimeInSeconds} seconds`)
+          await api.startDailyKeysMinigame()
+          await sleep(convertToMilliseconds({ seconds: gameSleepTimeInSeconds }))
+          const { clickerUser: newClickerUser, dailyKeysMiniGame } = await api.claimDailyKeysMinigame(cipher)
+
+          if (dailyKeysMiniGame.isClaimed) {
+            const keysRecieved = newClickerUser.totalKeys - clickerUser.totalKeys
+            await logger.info(`Key is succesfully claimed\nKeys recieved: ${keysRecieved}\nTotal keys: ${newClickerUser.totalKeys}`)
+          }
         }
+
+        if (remainSecondsToNextAttempt >= 0) {
+          setTimeout(
+            () => completeMinigame(),
+            convertToMilliseconds({ seconds: remainSecondsToNextAttempt }),
+          )
+          await logger.info(`Can not complete minigame because of timeout. Next attempt planned after ${remainSecondsToNextAttempt} seconds`)
+          return
+        }
+
+        await completeMinigame()
       },
       shedulerType: 'cron',
-      cronExpression: `0 ${faker.helpers.rangeToNumber({ min: 12, max: 16 })} * * *`,
+      cronExpression: `${faker.helpers.rangeToNumber({ min: 1, max: 59 })} 12 * * *`,
     },
     {
       name: 'Daily Cipher',
@@ -81,13 +95,13 @@ export const hamsterMiniApp = defineMiniApp({
         const { dailyCipher: { cipher, isClaimed } } = await api.getConfig()
 
         if (isClaimed) {
-          logger.info(`Daily cipher is already claimed`)
+          await logger.info(`Daily cipher is already claimed`)
           return
         }
 
         const decodedCipher = HamsterHelpers.decodeDailyCipher(cipher)
         const { dailyCipher: { bonusCoins } } = await api.claimDailyCipher(decodedCipher)
-        logger.success(`Successfully claim daily cipher: ${decodedCipher}}\nBonus: ${bonusCoins}`)
+        await logger.success(`Successfully claim daily cipher: ${decodedCipher}}\nBonus: ${bonusCoins}`)
       },
       shedulerType: 'cron',
       cronExpression: `${faker.helpers.rangeToNumber({ min: 1, max: 59 })} 13 * * *`,
