@@ -64,8 +64,8 @@ export const hamsterMiniApp = defineMiniApp({
           const { clickerUser } = await api.getClickerUser()
           const gameSleepTimeInSeconds = faker.helpers.rangeToNumber({ min: 15, max: 40 })
           const cipher = HamsterHelpers.getMiniGameCipher(clickerUser.id, gameSleepTimeInSeconds)
-          await logger.info(`Sleep for ${gameSleepTimeInSeconds} seconds`)
           await api.startDailyKeysMinigame()
+          await logger.info(`Daily keys minigame started. Sleep for ${gameSleepTimeInSeconds} seconds`)
           await sleep(convertToMilliseconds({ seconds: gameSleepTimeInSeconds }))
           const { clickerUser: newClickerUser, dailyKeysMiniGame } = await api.claimDailyKeysMinigame(cipher)
 
@@ -101,7 +101,7 @@ export const hamsterMiniApp = defineMiniApp({
 
         const decodedCipher = HamsterHelpers.decodeDailyCipher(cipher)
         const { dailyCipher: { bonusCoins } } = await api.claimDailyCipher(decodedCipher)
-        await logger.success(`Successfully claim daily cipher: ${decodedCipher}}\nBonus: ${bonusCoins}`)
+        await logger.success(`Successfully claim daily cipher: ${decodedCipher}\nBonus: ${bonusCoins}`)
       },
       shedulerType: 'cron',
       cronExpression: `${faker.helpers.rangeToNumber({ min: 1, max: 59 })} 13 * * *`,
