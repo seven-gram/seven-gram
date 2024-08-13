@@ -31,48 +31,48 @@ export interface ClickerUser {
   promos: Promo[]
 }
 
-export interface Achievement {
+interface Achievement {
   id: string
   unlockedAt: Date
   isNew: boolean
   isClaimed: boolean
 }
 
-export interface AirdropTasks {
+interface AirdropTasks {
   airdrop_connect_ton_wallet: AirdropConnectTonWallet
 }
 
-export interface AirdropConnectTonWallet {
+interface AirdropConnectTonWallet {
   id: string
   walletAddress: string
   completedAt: Date
 }
 
-export interface Boosts {
+interface Boosts {
   BoostFullAvailableTaps: BoostEarnPerTap
   BoostMaxTaps: BoostEarnPerTap
   BoostEarnPerTap: BoostEarnPerTap
 }
 
-export interface BoostEarnPerTap {
+interface BoostEarnPerTap {
   id: string
   level: number
   lastUpgradeAt: number
   snapshotReferralsCount?: number
 }
 
-export interface Promo {
+interface Promo {
   promoId: string
   receiveKeysTotal: number
   receiveKeysToday: number
   receiveKeysLastTime: Date
 }
 
-export interface Referral {
+interface Referral {
   friend: Friend
 }
 
-export interface Friend {
+interface Friend {
   isBot: boolean
   firstName: string
   lastName: string
@@ -88,7 +88,7 @@ export interface Friend {
   welcomeBonusCoins: number
 }
 
-export interface Photo {
+interface Photo {
   width: number
   fileSize: number
   fileUniqueId: string
@@ -96,17 +96,17 @@ export interface Photo {
   height: number
 }
 
-export interface Skin {
+interface Skin {
   available: Available[]
   selectedSkinId: string
 }
 
-export interface Available {
+interface Available {
   skinId: string
   buyAt: Date
 }
 
-export interface Tasks {
+interface Tasks {
   streak_days: StreakDays
   select_exchange: HamsterDrop
   subscribe_telegram_channel: HamsterDrop
@@ -153,12 +153,12 @@ export interface Tasks {
   hamster_youtube_easy_start_s1e30: HamsterDrop
 }
 
-export interface HamsterDrop {
+interface HamsterDrop {
   id: string
   completedAt: Date
 }
 
-export interface StreakDays {
+interface StreakDays {
   id: string
   completedAt: Date
   days: number

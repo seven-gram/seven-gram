@@ -3,6 +3,7 @@ import { createMiniAppConfigDatabase } from 'src/mini-apps/helpers/config-databa
 import { MiniAppName } from 'src/mini-apps/enums.js'
 import { defineMiniApp } from 'src/mini-apps/helpers/define.js'
 import { convertToMilliseconds, sleep } from 'src/shared.js'
+import { TelegramHelpers } from 'src/telegram/index.js'
 import { HamsterStatic } from './static.js'
 import { HamsterApi } from './api/index.js'
 import * as HamsterHelpers from './helpers.js'
@@ -105,6 +106,62 @@ export const hamsterMiniApp = defineMiniApp({
       },
       shedulerType: 'cron',
       cronExpression: `${faker.helpers.rangeToNumber({ min: 1, max: 59 })} 13 * * *`,
+    },
+    {
+      name: 'Playground',
+      async callback({ logger, api }) {
+        const { promos, states } = await api.getPromos()
+
+        for await (const promo of promos) {
+          const appToken = HamsterStatic.PROMO_ID_TO_APP_TOKEN_MAP[promo.promoId]
+          const promoState = states.find(state => state.promoId === promo.promoId)
+
+          if (!appToken) {
+            await logger.info(`Skipping game _${promo.title.en}_. Can not find its app token.`)
+            continue
+          }
+
+          if (!promoState) {
+            await logger.info(`Skipping game _${promo.title.en}_. Can not find its state.`)
+            continue
+          }
+
+          if (promoState.receiveKeysToday >= promo.keysPerDay) {
+            await logger.info(`All promo codes activated for _${promo.title.en}_ game yet.`)
+            continue
+          }
+
+          let currentActivatedPromosCount = promoState.receiveKeysToday
+
+          await logger.info(`Starting promo codes mining for _${promo.title.en}_ game`)
+          try {
+            while (currentActivatedPromosCount < promo.keysPerDay) {
+              const promoCode = await HamsterHelpers.getPromoCode({
+                appToken,
+                promo,
+              })
+
+              const { promoState } = await api.applyPromoCode(promoCode)
+              await logger.info(`Promo ${promoCode} was succesfully activated for ${promo.title.en} game.\n${currentActivatedPromosCount + 1} codes of ${promo.keysPerDay} applied.`)
+
+              currentActivatedPromosCount = promoState.receiveKeysToday
+
+              await TelegramHelpers.doFloodProtect()
+            }
+            await logger.info(`Promo codes mining for _${promo.title.en}_ game succesfully finished.`)
+          }
+          catch (error) {
+            console.error(error)
+            if (error instanceof Error) {
+              await logger.error(`An error occurs while mining promo for _${promo.title.en}_ game:\n\`\`\`Message: ${error.message}\`\`\``)
+            }
+          }
+
+          await TelegramHelpers.doFloodProtect()
+        }
+      },
+      shedulerType: 'cron',
+      cronExpression: `${faker.helpers.rangeToNumber({ min: 1, max: 59 })} 14 * * *`,
     },
   ],
 })
