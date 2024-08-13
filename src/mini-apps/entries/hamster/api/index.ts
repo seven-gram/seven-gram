@@ -7,6 +7,7 @@ import { tap } from './tap.js'
 import { claimDailyKeysMinigame, startDailyKeysMinigame } from './minigame.js'
 import { claimDailyCipher } from './daily-cipher.js'
 import { applyPromoCode, getPromos } from './promocodes.js'
+import { checkTask, getTasksList } from './tasks.js'
 
 export const HamsterApi = defineMiniAppApi({
   getAccountInfo,
@@ -19,4 +20,6 @@ export const HamsterApi = defineMiniAppApi({
   claimDailyCipher,
   getPromos,
   applyPromoCode,
+  getTasksList,
+  checkTask,
 })

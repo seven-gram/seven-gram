@@ -163,5 +163,51 @@ export const hamsterMiniApp = defineMiniApp({
       shedulerType: 'cron',
       cronExpression: `${faker.helpers.rangeToNumber({ min: 1, max: 59 })} 14 * * *`,
     },
+    {
+      name: 'Tasks',
+      async callback({ logger, api }) {
+        const { tasks } = await api.getTasksList()
+
+        let completedTasksCount = 0
+
+        for (const task of tasks) {
+          if (task.isCompleted) {
+            continue
+          }
+          else if (
+            task.rewardDelaySeconds
+            && task.toggle?.enableAt
+            && ((new Date().valueOf() - new Date(task.toggle.enableAt).valueOf()) / 1000) < task.rewardDelaySeconds
+          ) {
+            // TODO: plan module execution to nearest time after reward delay seconds end
+            continue
+          }
+
+          async function onTaskCompletion() {
+            await logger.info(`Task _${task.id}_ succesfully completed.\nBonus coins: ${task.rewardCoins}`)
+            completedTasksCount++
+          }
+
+          if (task.id.includes('youtube') && (task.type === 'WithLink' || task.type === 'WithLocaleLink')) {
+            await api.checkTask(task.id)
+            await onTaskCompletion()
+          }
+
+          else if (task.type === 'StreakDay' && task.id === 'streak_days') {
+            await api.checkTask(task.id)
+            await onTaskCompletion()
+          }
+        }
+
+        if (completedTasksCount === 0) {
+          await logger.info(`Can not complete any task :(`)
+        }
+      },
+      shedulerType: 'timeout',
+      timeout: () => faker.helpers.rangeToNumber({
+        min: convertToMilliseconds({ hours: 5 }),
+        max: convertToMilliseconds({ hours: 6 }),
+      }),
+    },
   ],
 })
