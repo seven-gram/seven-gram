@@ -215,11 +215,12 @@ export const hamsterMiniApp = defineMiniApp({
           if (
             !upgradeForBuy.isAvailable
             || upgradeForBuy.cooldownSeconds
-            || upgradeForBuy.level === upgradeForBuy.maxLevel
+            || (upgradeForBuy.maxLevel && upgradeForBuy.level >= upgradeForBuy.maxLevel)
             || upgradeForBuy.isExpired
+            || upgradeForBuy.price <= 0
             || clickerUser.balanceCoins < upgradeForBuy.price
             || unavaliableSections.includes(upgradeForBuy.section)
-            || (upgradeForBuy.price / upgradeForBuy.profitPerHourDelta) > 4200
+            || (upgradeForBuy.price / upgradeForBuy.profitPerHourDelta) > 4000
           ) {
             continue
           }
@@ -237,8 +238,8 @@ export const hamsterMiniApp = defineMiniApp({
       },
       shedulerType: 'timeout',
       timeout: () => faker.helpers.rangeToNumber({
-        min: convertToMilliseconds({ minutes: 50 }),
-        max: convertToMilliseconds({ minutes: 70 }),
+        min: convertToMilliseconds({ minutes: 30 }),
+        max: convertToMilliseconds({ minutes: 40 }),
       }),
     },
   ],
