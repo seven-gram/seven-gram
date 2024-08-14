@@ -213,5 +213,42 @@ export const hamsterMiniApp = defineMiniApp({
         max: convertToMilliseconds({ hours: 6 }),
       }),
     },
+    {
+      name: 'Mining',
+      async callback({ logger, api }) {
+        const { sections, upgradesForBuy } = await api.getUpgradesForBuy()
+        let { clickerUser } = await api.getClickerUser()
+        const unavaliableSections = sections.filter(section => !section.isAvailable).map(section => section.section)
+
+        for (const upgradeForBuy of upgradesForBuy) {
+          if (
+            !upgradeForBuy.isAvailable
+            || upgradeForBuy.cooldownSeconds
+            || upgradeForBuy.level === upgradeForBuy.maxLevel
+            || upgradeForBuy.isExpired
+            || clickerUser.balanceCoins < upgradeForBuy.price
+            || unavaliableSections.includes(upgradeForBuy.section)
+            || (upgradeForBuy.price / upgradeForBuy.profitPerHourDelta) > 4200
+          ) {
+            continue
+          }
+
+          async function buyUpgrade() {
+            const { upgradesForBuy, clickerUser: newClickerUser } = await api.buyUpgrade(upgradeForBuy.id)
+            clickerUser = newClickerUser
+            const updatedUpgradeForBuy = upgradesForBuy.find(upgrade => upgrade.id === upgradeForBuy.id)!
+            await logger.info(`_${updatedUpgradeForBuy.id}_ card was bought succesfully.\nLevel: ${updatedUpgradeForBuy.level}\n`)
+            await TelegramHelpers.doFloodProtect()
+          }
+
+          await buyUpgrade()
+        }
+      },
+      shedulerType: 'timeout',
+      timeout: () => faker.helpers.rangeToNumber({
+        min: convertToMilliseconds({ minutes: 50 }),
+        max: convertToMilliseconds({ minutes: 70 }),
+      }),
+    },
   ],
 })
