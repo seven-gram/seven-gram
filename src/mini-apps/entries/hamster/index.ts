@@ -7,10 +7,10 @@ import { TelegramHelpers } from 'src/telegram/index.js'
 import { HamsterStatic } from './static.js'
 import { HamsterApi } from './api/index.js'
 import * as HamsterHelpers from './helpers.js'
+import * as HamsterTypes from './types/index.js'
 
 export { HamsterStatic } from './static.js'
-export * as HamsterTypes from './types/index.js'
-export { HamsterHelpers }
+export { HamsterHelpers, HamsterTypes }
 
 export const hamsterMiniApp = defineMiniApp({
   name: MiniAppName.HAMSTER,
@@ -183,20 +183,24 @@ export const hamsterMiniApp = defineMiniApp({
             continue
           }
 
-          async function onTaskCompletion() {
-            await logger.info(`Task _${task.id}_ succesfully completed.\nBonus coins: ${task.rewardCoins}`)
-            completedTasksCount++
+          async function onTaskCompletion(task: HamsterTypes.Task) {
+            if (task.isCompleted) {
+              await logger.info(`Task _${task.id}_ succesfully completed.\nBonus coins: ${task.rewardCoins}`)
+              completedTasksCount++
+            }
           }
 
           if (task.id.includes('youtube') && (task.type === 'WithLink' || task.type === 'WithLocaleLink')) {
-            await api.checkTask(task.id)
-            await onTaskCompletion()
+            const { task: taskAfterCheck } = await api.checkTask(task.id)
+            await onTaskCompletion(taskAfterCheck)
           }
 
           else if (task.type === 'StreakDay' && task.id === 'streak_days') {
-            await api.checkTask(task.id)
-            await onTaskCompletion()
+            const { task: taskAfterCheck } = await api.checkTask(task.id)
+            await onTaskCompletion(taskAfterCheck)
           }
+
+          await TelegramHelpers.doFloodProtect()
         }
 
         if (completedTasksCount === 0) {
