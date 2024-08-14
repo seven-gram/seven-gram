@@ -1,7 +1,7 @@
 import { CronJob, CronTime } from 'cron'
 import humanizeDuration from 'humanize-duration'
 import type { AxiosInstance } from 'axios'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { useUserBot } from 'src/telegram/index.js'
 import type { AnyFn } from 'src/shared.js'
 import { miniApps } from '../index.js'
@@ -55,7 +55,13 @@ export async function initMiniApps() {
             })
           }
           catch (error) {
-            if (error instanceof Error) {
+            if (error instanceof AxiosError) {
+              await miniApp.public.logger.error({
+                plainMessage: `Module |${callbackEntity.name}| was executed with error.\nMessage: ${JSON.stringify(error.response?.data ?? error.message)}\nNext execution after ${nextJobExecutionDurationString}`,
+                markdownMessage: `Module |${callbackEntity.name}| was executed with error.\`\`\`Message: ${JSON.stringify(error.response?.data ?? error.message)}\`\`\`\nNext execution after _${nextJobExecutionDurationString}_`,
+              })
+            }
+            else if (error instanceof Error) {
               await miniApp.public.logger.error({
                 plainMessage: `An unhandled error occurs.\nMessage: ${error.message}\nNext execution after ${nextJobExecutionDurationString}`,
                 markdownMessage: `An unhandled error occurs.\`\`\`Message: ${error.message}\`\`\`\nNext execution after _${nextJobExecutionDurationString}_`,
