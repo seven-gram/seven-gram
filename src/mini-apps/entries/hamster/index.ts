@@ -168,8 +168,6 @@ export const hamsterMiniApp = defineMiniApp({
       async callback({ logger, api }) {
         const { tasks } = await api.getTasksList()
 
-        let completedTasksCount = 0
-
         for (const task of tasks) {
           if (task.isCompleted) {
             continue
@@ -183,28 +181,21 @@ export const hamsterMiniApp = defineMiniApp({
             continue
           }
 
-          async function onTaskCompletion(task: HamsterTypes.Task) {
-            if (task.isCompleted) {
-              await logger.info(`Task _${task.id}_ succesfully completed.\nBonus coins: ${task.rewardCoins}`)
-              completedTasksCount++
+          async function onTaskCompletion() {
+            const { task: newTask } = await api.checkTask(task.id)
+            if (newTask.isCompleted) {
+              await logger.info(`Task _${newTask.id}_ succesfully completed.\nBonus coins: ${newTask.rewardCoins}`)
             }
+            await TelegramHelpers.doFloodProtect()
           }
 
           if (task.id.includes('youtube') && (task.type === 'WithLink' || task.type === 'WithLocaleLink')) {
-            const { task: taskAfterCheck } = await api.checkTask(task.id)
-            await onTaskCompletion(taskAfterCheck)
+            await onTaskCompletion()
           }
 
           else if (task.type === 'StreakDay' && task.id === 'streak_days') {
-            const { task: taskAfterCheck } = await api.checkTask(task.id)
-            await onTaskCompletion(taskAfterCheck)
+            await onTaskCompletion()
           }
-
-          await TelegramHelpers.doFloodProtect()
-        }
-
-        if (completedTasksCount === 0) {
-          await logger.info(`Can not complete any task :(`)
         }
       },
       shedulerType: 'timeout',
