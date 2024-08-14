@@ -211,7 +211,7 @@ export const hamsterMiniApp = defineMiniApp({
         let { clickerUser } = await api.getClickerUser()
         const unavaliableSections = sections.filter(section => !section.isAvailable).map(section => section.section)
 
-        for (const upgradeForBuy of upgradesForBuy) {
+        for (const upgradeForBuy of upgradesForBuy.toReversed()) {
           if (
             !upgradeForBuy.isAvailable
             || upgradeForBuy.cooldownSeconds
