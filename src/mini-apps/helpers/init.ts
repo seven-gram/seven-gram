@@ -48,11 +48,6 @@ export async function initMiniApps() {
                 Object.entries(miniApp.api).map(([key, value]) => [key, (value as AnyFn).bind(globalThis, axiosClient)]),
               ) as Record<keyof typeof miniApp.api, AnyFn>,
             })
-
-            await miniApp.public.logger.success({
-              plainMessage: `Module |${callbackEntity.name}| was executed succesfully.\nNext execution after ${nextJobExecutionDurationString}`,
-              markdownMessage: `Module _|${callbackEntity.name}|_ was executed succesfully\n\nNext execution after _${nextJobExecutionDurationString}_`,
-            })
           }
           catch (error) {
             if (error instanceof AxiosError) {
