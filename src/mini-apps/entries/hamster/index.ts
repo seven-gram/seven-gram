@@ -121,17 +121,12 @@ export const hamsterMiniApp = defineMiniApp({
             continue
           }
 
-          if (!promoState) {
-            await logger.info(`Skipping game _${promo.title.en}_. Can not find its state.`)
-            continue
-          }
-
-          if (promoState.receiveKeysToday >= promo.keysPerDay) {
+          if ((promoState?.receiveKeysToday ?? 0) >= promo.keysPerDay) {
             await logger.info(`All promo codes activated for _${promo.title.en}_ game yet.`)
             continue
           }
 
-          let currentActivatedPromosCount = promoState.receiveKeysToday
+          let currentActivatedPromosCount = promoState?.receiveKeysToday ?? 0
 
           await logger.info(`Starting promo codes mining for _${promo.title.en}_ game`)
           try {
