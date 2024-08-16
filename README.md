@@ -1,5 +1,17 @@
 # Seven Gram
 
+## Supported features
+
+- Minigames
+  - Hamster
+    - Anti AFK activity
+    - Taps
+    - Puzzle keys minigame solve
+    - Daily cipher auto autocomplete
+    - Daily tasks autocomplete
+    - Playground promocodes mining
+    - Autoupgrade tasks
+
 ## 📌 Prerequisites
 
 - `Node.js`v20 or greater
