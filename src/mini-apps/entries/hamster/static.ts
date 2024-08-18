@@ -6,7 +6,7 @@ const PROMO_OPTIONS_MAP: Record<PromoTitle, {
 }> = {
   'My Clone Army': {
     token: '74ee0b5b-775e-4bee-974f-63e7f4d5bacb',
-    eventTimeout: 20 * 1000,
+    eventTimeout: 120 * 1000,
   },
   'Chain Cube 2048': {
     token: 'd1690a07-3780-4068-810f-9b5bbf2931b2',
