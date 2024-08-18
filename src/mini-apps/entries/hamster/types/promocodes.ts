@@ -43,6 +43,15 @@ interface Onboard {
   description: Description
 }
 
+export enum PromoTitle {
+  TWERK_RACE = 'Twerk Race',
+  MERGE_AWAY = 'Merge Away',
+  MY_CLONE_ARMY = 'My Clone Army',
+  CHAIN_CUBE_2048 = 'Chain Cube 2048',
+  TRAIN_MINER = 'Train Miner',
+  BIKE_RIDE_3_D = 'Bike Ride 3D',
+}
+
 interface Title {
-  en: string
+  en: PromoTitle
 }
