@@ -111,15 +111,17 @@ export const hamsterMiniApp = defineMiniApp({
       name: 'Playground',
       async callback({ logger, api }) {
         const { promos, states } = await api.getPromos()
+        const promosSettings = await api.getPromosSettings()
 
-        for await (const promo of promos) {
-          const promoOptions = HamsterStatic.PROMO_OPTIONS_MAP[promo.title.en]
-          const promoState = states.find(state => state.promoId === promo.promoId)
+        for await (const promoSettings of promosSettings) {
+          const promo = promos.find(promo => promo.promoId === promoSettings.promoId)
 
-          if (!promoOptions.token) {
-            await logger.info(`Skipping game _${promo.title.en}_. Can not find its app token.`)
+          if (!promo) {
+            await logger.info(`Can no find game with id _${promoSettings.promoId}_. Skipping it.`)
             continue
           }
+
+          const promoState = states.find(state => state.promoId === promo.promoId)
 
           if ((promoState?.receiveKeysToday ?? 0) >= promo.keysPerDay) {
             await logger.info(`All promo codes activated for _${promo.title.en}_ game yet.`)
@@ -132,9 +134,9 @@ export const hamsterMiniApp = defineMiniApp({
           try {
             while (currentActivatedPromosCount < promo.keysPerDay) {
               const promoCode = await HamsterHelpers.getPromoCode({
-                appToken: promoOptions.token,
+                appToken: promoSettings.appToken,
                 promo,
-                eventTimeout: promoOptions.eventTimeout,
+                eventTimeout: promoSettings.minWaitAfterLogin * 1000,
               })
 
               const { promoState } = await api.applyPromoCode(promoCode)
