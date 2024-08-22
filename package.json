@@ -39,6 +39,7 @@
     "telegram": "^2.22.2",
     "toad-scheduler": "^3.0.1",
     "zx": "^8.1.4"
+    
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.23.2",
