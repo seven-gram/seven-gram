@@ -25,10 +25,10 @@ export function decodeDailyCipher(cipher: string): string {
 
 export function generateClientId(): string {
   const currentTime = Date.now()
-  const randomPart = faker.helpers.rangeToNumber({ min: 100, max: 999 })
-  const randomFirst = Number(`${currentTime.toString().substring(0, 10)}${randomPart}`)
+  // eslint-disable-next-line ts/no-loss-of-precision
+  const randomNumber = `34${faker.helpers.rangeToNumber({ min: 10000000000000000, max: 99999999999999999 })}`
 
-  return `${randomFirst}-3472514666961597005`
+  return `${currentTime}-${randomNumber}`
 }
 
 export function generateEventId(): string {
