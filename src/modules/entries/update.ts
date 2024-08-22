@@ -27,11 +27,6 @@ export const updateModule = defineModule({
         return
       }
 
-      if (!pullResult.stdout.includes('Updating...')) {
-        await pullingMessage?.edit({ text: `Can not pull changed. Message: ${pullResult.stdout}` })
-        return
-      }
-
       if (/package(?:-lock)?\.json/.test(pullResult.stdout)) {
         await $`npm i`
       }
