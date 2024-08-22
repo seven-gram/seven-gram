@@ -14,7 +14,7 @@ export const updateModule = defineModule({
       const pullingMessage = await event.message.edit({ text: 'Pulling...' })
       const pullResult = await $({ nothrow: true })`git pull`
 
-      if (pullResult.stderr) {
+      if (pullResult.stderr.includes('error')) {
         await pullingMessage?.edit({
           text: `Error occurs while pulling changes.\n**Message: ${pullResult.stderr}**`,
           parseMode: 'markdown',
