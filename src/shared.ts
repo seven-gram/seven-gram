@@ -22,3 +22,6 @@ export function convertToMilliseconds(options: {
 
   return milliseconds
 }
+
+export type NeverIfNullable<T> = T extends null ? never : T extends undefined ? never : T
+export type AnyRecord = Record<string, any>
