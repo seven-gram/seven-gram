@@ -27,7 +27,7 @@ export const updateModule = defineModule({
         return
       }
 
-      if (!pullResult.stdout.includes('Updating')) {
+      if (!pullResult.stdout.includes('Updating...')) {
         await pullingMessage?.edit({ text: `Can not pull changed. Message: ${pullResult.stdout}` })
         return
       }
@@ -37,7 +37,8 @@ export const updateModule = defineModule({
       }
 
       await $`npm run build`
-      await reloadModule.command.handler({ event })
+      await pullingMessage?.edit({ text: 'Updated' })
+      await event.message.reply({ message: `.${reloadModule.command.pattern}` })
     },
   },
 })
