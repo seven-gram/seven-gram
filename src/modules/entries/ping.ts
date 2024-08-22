@@ -9,7 +9,7 @@ export const pingModule = defineModule({
     pattern: 'ping',
     description: `Replies ping message`,
     async handler({ event }) {
-      await event.message.reply({ message: `Hello from ${AppMeta.name}!` })
+      await event.message.reply({ message: `Hello from ${AppMeta.name}` })
     },
   },
 })
