@@ -1,17 +1,5 @@
 # Seven Gram
 
-## Supported features
-
-- Minigames
-  - Hamster
-    - Anti AFK activity
-    - Taps
-    - Puzzle keys minigame solve
-    - Daily cipher auto autocomplete
-    - Daily tasks autocomplete
-    - Playground promocodes mining
-    - Autoupgrade tasks
-
 ## 📌 Prerequisites
 
 - `Node.js`v20 or greater
@@ -35,50 +23,16 @@ You can install these by [this link](https://nodejs.org/en/download/)
     npm run build
     ```
 
-4. Start Seven Gram
+4. Install pm2 globally
 
     ```sh
-    npm run start
+    npm i -g pm2
     ```
 
-## 📃 Getting API Keys
-
-1. Go to [my.telegram.org](https://my.telegram.org) and log in using your phone number.
-
-2. Select **"API development tools"** and fill out the form to register a new application.
-3. Heare you can copy your `API_ID` and `API_HASH`
-
-## 🖵 Screenshots
-
-# Seven Gram
-
-## 📌 Prerequisites
-
-- `Node.js`v20 or greater
-- `Npm` v10 or greater
-
-You can install these by [this link](https://nodejs.org/en/download/)
-
-## Getting started
-
-1. Clone this repository
-
-2. Install dependencies
+5. Start Seven Gram
 
     ```sh
-    npm i
-    ```
-
-3. Run build
-
-    ```sh
-    npm run build
-    ```
-
-4. Start Seven Gram
-
-    ```sh
-    npm run start
+    npm run serve
     ```
 
 ## 📃 Getting API Keys
@@ -92,4 +46,12 @@ You can install these by [this link](https://nodejs.org/en/download/)
 
 Log info to special channel on your main telegram accout
 
-![image](https://github.com/user-attachments/assets/17233eea-6ff3-4f62-8e42-17aa33dd97bb)
+![image](https://github.com/user-attachments/assets/d2342433-097e-47b4-a0a2-311fe4f21edc)
+
+![image](https://github.com/user-attachments/assets/64e706c3-dcdd-4940-827e-b82ba4d76f14)
+
+Commands avaliable from every chats (instead notes)
+
+![image](https://github.com/user-attachments/assets/6574ac3d-c871-4b01-8216-8fdad73b8e53)
+
+
