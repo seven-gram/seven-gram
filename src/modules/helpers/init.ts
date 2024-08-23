@@ -3,20 +3,12 @@ import { NewMessage } from 'telegram/events/NewMessage.js'
 import { systemLogger } from 'src/logger.js'
 import { useConfig } from 'src/config.js'
 import { escapeRegExp } from 'lodash-es'
-import { pingModule } from '../entries/ping.js'
 import { ModuleType } from '../types.js'
-import { reloadModule } from '../entries/reload/index.js'
-import { updateModule } from '../entries/update.js'
-import { defineModules } from './define.js'
+import { modules } from '../entries/index.js'
 
 export async function initModules() {
   const config = useConfig()
   const userBot = await useUserBot()
-  const modules = defineModules([
-    pingModule,
-    updateModule,
-    reloadModule,
-  ])
 
   for (const module of modules) {
     try {
