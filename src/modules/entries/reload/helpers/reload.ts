@@ -1,5 +1,6 @@
 import { useBot } from 'src/telegram/index.js'
 import type { Api } from 'telegram'
+import { $ } from 'zx'
 import { reloadModule } from '../index.js'
 
 export async function reloadApplication(message?: Api.Message) {
@@ -26,5 +27,5 @@ export async function reloadApplication(message?: Api.Message) {
     })
   }
   config.toggleNeedToReload(true)
-//   await $`pm2 reload main`
+  await $`pm2 reload main`
 }
