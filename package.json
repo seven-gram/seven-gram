@@ -17,7 +17,8 @@
     "postbuild": "tsc-alias",
     "build": "tsc",
     "build:watch": "concurrently \"tsc --watch\" \"tsc-alias --watch\"",
-    "start": "pm2 start dist/main.js",
+    "start": "node dist/main.js",
+    "serve": "pm2 start dist/main.js --max-restarts=5 --restart-delay=3000",
     "lint": "eslint",
     "lint:fix": "eslint --fix"
   },
