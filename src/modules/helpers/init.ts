@@ -1,6 +1,8 @@
 import { useUserBot } from 'src/telegram/index.js'
 import { NewMessage } from 'telegram/events/NewMessage.js'
 import { systemLogger } from 'src/logger.js'
+import { useConfig } from 'src/config.js'
+import { escapeRegExp } from 'lodash-es'
 import { pingModule } from '../entries/ping.js'
 import { ModuleType } from '../types.js'
 import { reloadModule } from '../entries/reload.js'
@@ -8,6 +10,7 @@ import { updateModule } from '../entries/update.js'
 import { defineModules } from './define.js'
 
 export async function initModules() {
+  const config = useConfig()
   const userBot = await useUserBot()
   const modules = defineModules([
     pingModule,
@@ -31,7 +34,7 @@ export async function initModules() {
     if (moduleType === ModuleType.COMMAND) {
       userBot.client.addEventHandler(
         async (event) => {
-          const regexExecArray = /^.(\w*)\s?(.*)/.exec(event.message.text)
+          const regexExecArray = new RegExp(`^${escapeRegExp(config.getComputedCommandPrefix())}(\\w*)\\s?(.*)`).exec(event.message.text)
           if (!regexExecArray?.length) {
             return
           }
