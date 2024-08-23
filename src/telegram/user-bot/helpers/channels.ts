@@ -1,4 +1,4 @@
-import { useConfigDatabase } from 'src/config.js'
+import { useConfigDatabase } from 'src/config-database.js'
 import type { TelegramClient } from 'telegram'
 import { Api } from 'telegram'
 import type { SetRequired } from 'type-fest'

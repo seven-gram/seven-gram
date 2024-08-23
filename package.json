@@ -30,6 +30,7 @@
     "consola": "^3.2.3",
     "cron": "^3.1.7",
     "dotenv": "^16.4.5",
+    "envalid": "^8.0.0",
     "humanize-duration": "^3.32.1",
     "lodash-es": "^4.17.21",
     "lowdb": "^7.0.1",
@@ -39,7 +40,6 @@
     "telegram": "^2.22.2",
     "toad-scheduler": "^3.0.1",
     "zx": "^8.1.4"
-    
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.23.2",

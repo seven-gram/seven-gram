@@ -4,10 +4,11 @@ import type { UserFromGetMe } from 'telegraf/types'
 import { faker } from '@faker-js/faker'
 import { AppMeta } from 'src/meta.js'
 import { memoize } from 'lodash-es'
-import { sleep } from '../../shared.js'
-import { useConfigDatabase } from '../../config.js'
-import { systemLogger } from '../../logger.js'
-import { TelegramMeta, useUserBot } from '../index.js'
+import { useConfigDatabase } from 'src/config-database.js'
+import { sleep } from 'src/shared.js'
+import { systemLogger } from 'src/logger.js'
+import { TelegramMeta } from '../meta.js'
+import { useUserBot } from '../user-bot/use-user-bot.js'
 
 async function createBot() {
   const userBot = await useUserBot()
