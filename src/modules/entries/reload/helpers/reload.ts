@@ -9,7 +9,7 @@ export async function reloadApplication(message?: Api.Message) {
 
   const reloadingMessageText = 'Reloading...'
 
-  const reloadingMessage = await message?.edit({ text: reloadingMessageText })
+  const reloadingMessage = await message?.reply({ message: reloadingMessageText })
   const chatId = reloadingMessage?.chatId?.toJSON()
   const messageId = reloadingMessage?.id
 

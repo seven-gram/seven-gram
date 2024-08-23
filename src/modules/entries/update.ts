@@ -11,7 +11,7 @@ export const updateModule = defineModule({
     pattern: 'update',
     description: `Updates ${AppMeta.name} to latest avaliable version`,
     async handler({ event }) {
-      const pullingMessage = await event.message.edit({ text: 'Pulling...' })
+      const pullingMessage = await event.message.reply({ message: 'Pulling...' })
       const pullResult = await $({ nothrow: true })`git pull`
 
       if (pullResult.stderr.includes('error')) {

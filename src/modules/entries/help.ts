@@ -21,7 +21,7 @@ export const helpModule = defineModule({
         const commandStringWithPrefix = `${config.getComputedCommandPrefix()}${commandModule.command.pattern}`
         messageText += `| \`${commandStringWithPrefix}\` |:    ${commandModule.command.description}`
       }
-      await event.message.edit({ text: messageText })
+      await event.message.reply({ message: messageText })
     },
   },
 })
