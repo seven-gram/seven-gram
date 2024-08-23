@@ -1,7 +1,8 @@
 import { AppMeta } from 'src/meta.js'
 import { useBot, useUserBot } from 'src/telegram/index.js'
-import { $ } from 'zx'
-import { defineModule } from '../helpers/define.js'
+import type { Api } from 'telegram'
+import { defineModule } from '../../helpers/define.js'
+import { reloadApplication } from './helpers/reload.js'
 
 const NAME = 'Reloader'
 
@@ -18,6 +19,9 @@ interface ConfigDatabase {
 const defaultValue: ConfigDatabase = {
   needToReload: false,
 }
+
+const userBot = await useUserBot()
+const bot = await useBot()
 
 export const reloadModule = defineModule({
   type: 'command',
@@ -53,51 +57,27 @@ export const reloadModule = defineModule({
     pattern: 'reload',
     description: `Reloads current ${AppMeta.name} process`,
     async handler({ event }) {
-      const bot = await useBot()
-      const { config } = reloadModule
-
-      const reloadingMessageText = 'Reloading...'
-
-      const message = await event.message.edit({ text: reloadingMessageText })
-
-      const chatId = message?.chatId?.toJSON()
-      const messageId = message?.id
-
-      if (messageId && chatId) {
-        config.setUserMessageToEdit({
-          messageId,
-          chatId,
-        })
-      }
-      else {
-        const message = await bot.sendMessageToMe(reloadingMessageText)
-        config.setBotMessageToEdit({
-          chatId: message.chat.id.toString(),
-          messageId: message.message_id,
-        })
-      }
-      reloadModule.config.toggleNeedToReload(true)
-      await $`pm2 reload main`
+      await reloadApplication()
     },
   },
   async onInit() {
     if (reloadModule.config.database.data.needToReload) {
       reloadModule.config.toggleNeedToReload(false)
 
-      const userBot = await useUserBot()
-      const bot = await useBot()
       const { config } = reloadModule
 
       const reloadedMessageText = 'Reloaded!'
       const { userMessageToEdit, botMessageToEdit } = config.database.data
       if (userMessageToEdit) {
-        let chatInputEntity
+        let chatInputEntity: Api.TypeInputPeer | undefined
         try {
-          await userBot.client.getInputEntity(userMessageToEdit.chatId)
+          chatInputEntity = await userBot.client.getInputEntity(userMessageToEdit.chatId)
         }
         catch {
           await userBot.client.getDialogs()
-          chatInputEntity = await userBot.client.getInputEntity(userMessageToEdit.chatId)
+          await userBot.client.getInputEntity(userMessageToEdit.chatId)
+            .then(inputEntity => (chatInputEntity = inputEntity))
+            .catch()
         }
 
         if (chatInputEntity) {

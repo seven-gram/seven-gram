@@ -5,7 +5,7 @@ import { useConfig } from 'src/config.js'
 import { escapeRegExp } from 'lodash-es'
 import { pingModule } from '../entries/ping.js'
 import { ModuleType } from '../types.js'
-import { reloadModule } from '../entries/reload.js'
+import { reloadModule } from '../entries/reload/index.js'
 import { updateModule } from '../entries/update.js'
 import { defineModules } from './define.js'
 

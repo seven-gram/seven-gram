@@ -1,7 +1,7 @@
 import { AppMeta } from 'src/meta.js'
 import { $ } from 'zx'
 import { defineModule } from '../helpers/define.js'
-import { reloadModule } from './reload.js'
+import { reloadApplication } from './reload/helpers/reload.js'
 
 export const updateModule = defineModule({
   type: 'command',
@@ -33,7 +33,8 @@ export const updateModule = defineModule({
 
       await $`npm run build`
       await pullingMessage?.edit({ text: 'Updated' })
-      await event.message.reply({ message: `.${reloadModule.command.pattern}` })
+      const reloadingMessage = await event.message.reply({ message: 'Reload executed...' })
+      await reloadApplication(reloadingMessage)
     },
   },
 })
