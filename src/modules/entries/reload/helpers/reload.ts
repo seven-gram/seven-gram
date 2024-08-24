@@ -27,5 +27,5 @@ export async function reloadApplication(message?: Api.Message) {
     })
   }
   config.toggleNeedToReload(true)
-  await $`pm2 reload main`
+  await $`npm run pm2:reload`
 }
