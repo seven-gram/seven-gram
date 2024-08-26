@@ -24,7 +24,6 @@ const userBot = await useUserBot()
 const bot = await useBot()
 
 export const reloadModule = defineModule({
-  type: 'command',
   name: NAME,
   description: `Reloads current ${AppMeta.name} process`,
   configOptions: {
@@ -53,11 +52,14 @@ export const reloadModule = defineModule({
       }
     },
   },
-  command: {
-    pattern: 'reload',
-    description: `Reloads current ${AppMeta.name} process`,
-    async handler({ event }) {
-      await reloadApplication()
+  event: {
+    type: 'command',
+    command: {
+      pattern: 'reload',
+      description: `Reloads current ${AppMeta.name} process`,
+      async handler({ event }) {
+        await reloadApplication(event.message)
+      },
     },
   },
   async onInit() {

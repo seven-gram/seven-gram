@@ -5,23 +5,26 @@ import { modules } from './index.js'
 const config = useConfig()
 
 export const helpModule = defineModule({
-  type: 'command',
   name: 'Help',
   description: `Display all commands`,
-  command: {
-    pattern: 'help',
-    description: `Display all commands`,
-    async handler({ event }) {
-      const commandModules = modules.filter(module => module.type === 'command')
+  event: {
+    type: 'command',
+    command: {
+      pattern: 'help',
+      description: `Display all commands`,
+      async handler({ event }) {
+        let messageText = ''
+        for (const module of modules) {
+          if (module.event?.type !== 'command')
+            return
 
-      let messageText = ''
-      for (const commandModule of commandModules) {
-        if (messageText.length)
-          messageText += '\n'
-        const commandStringWithPrefix = `${config.getComputedCommandPrefix()}${commandModule.command.pattern}`
-        messageText += `| \`${commandStringWithPrefix}\` |:    ${commandModule.command.description}`
-      }
-      await event.message.reply({ message: messageText })
+          if (messageText.length)
+            messageText += '\n'
+          const commandStringWithPrefix = `${config.getComputedCommandPrefix()}${module.event.command.pattern}`
+          messageText += `| \`${commandStringWithPrefix}\` |:    ${module.event.command.description}`
+        }
+        await event.message.reply({ message: messageText })
+      },
     },
   },
 })

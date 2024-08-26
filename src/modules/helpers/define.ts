@@ -10,13 +10,12 @@ export function defineModule<
   GConfigOptions extends GDatabase extends undefined ? undefined
     : ConfigOptions<NeverIfNullable<GDatabase>, NeverIfNullable<GExtendConfig>>,
 >(options: DefineModuleOptions<GDatabase, GExtendConfig>): Module<GConfigOptions> {
-  const { command, description, name, type, onInit } = options
+  const { description, name, onInit, event } = options
 
   const commonConfigOptions = {
     description,
     name,
-    type,
-    command,
+    event,
     onInit,
   }
   const configOptions = (options as any).configOptions

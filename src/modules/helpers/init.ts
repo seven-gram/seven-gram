@@ -3,7 +3,8 @@ import { NewMessage } from 'telegram/events/NewMessage.js'
 import { systemLogger } from 'src/logger.js'
 import { useConfig } from 'src/config.js'
 import { escapeRegExp } from 'lodash-es'
-import { ModuleType } from '../types.js'
+import type { CommandEvent } from '../types.js'
+import { EventType } from '../types.js'
 import { modules } from '../entries/index.js'
 
 export async function initModules() {
@@ -22,10 +23,14 @@ export async function initModules() {
     }
   }
 
-  for (const moduleType of Object.values(ModuleType)) {
-    if (moduleType === ModuleType.COMMAND) {
+  for (const eventType of Object.values(EventType)) {
+    if (eventType === EventType.COMMAND) {
       userBot.client.addEventHandler(
         async (event) => {
+          const commandEvents = modules
+            .map(module => module.event)
+            .filter((event): event is CommandEvent => event?.type === 'command')
+
           const regexExecArray = new RegExp(`^${escapeRegExp(config.getComputedCommandPrefix())}(\\w*)\\s?(.*)`).exec(event.message.text)
           if (!regexExecArray?.length) {
             return
@@ -37,16 +42,14 @@ export async function initModules() {
             return
           }
 
-          const commandModule = modules.find(
-            module => module.type === 'command' && module.command.pattern === commandPattern,
-          )
+          const commandEvent = commandEvents.find(event => event.command.pattern === commandPattern)
 
-          if (!commandModule) {
+          if (!commandEvent) {
             return
           }
 
           try {
-            await commandModule.command.handler({
+            await commandEvent.command.handler({
               event,
               plainMessage: plainMessage || undefined,
             })
@@ -54,7 +57,7 @@ export async function initModules() {
           catch (error) {
             console.error(error)
             if (error instanceof Error) {
-              systemLogger.error(`An unhandled error occurs while execution *${commandModule.command.pattern}* command.\n\`\`\`Message: ${error.message}\`\`\``)
+              systemLogger.error(`An unhandled error occurs while execution *${commandEvent.command.pattern}* command.\n\`\`\`Message: ${error.message}\`\`\``)
             }
           }
         },

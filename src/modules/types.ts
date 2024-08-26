@@ -2,7 +2,7 @@ import type { NewMessageEvent } from 'telegram/events/NewMessage.js'
 import type { LowSync } from 'lowdb'
 import type { AnyRecord, NeverIfNullable } from 'src/shared.js'
 
-export enum ModuleType {
+export enum EventType {
   COMMAND = 'command',
 }
 
@@ -15,45 +15,39 @@ export interface ConfigOptions<
   extendCallback?: (database: LowSync<GDatabase>) => GExtendConfig
 }
 
-interface BaseDefineModuleOptionsStaticOptions {
+export interface CommandEvent {
+  type: 'command'
+  command: {
+    pattern: string
+    description: string
+    handler: (options: {
+      event: NewMessageEvent
+      plainMessage?: string | undefined
+    }) => Promise<void> | void
+  }
+}
+
+type Event = (CommandEvent)
+
+interface ModuleOptionsStaticOptions {
   name: string
   description: string
-  type: `${ModuleType}`
   onInit?: () => void | Promise<void>
+  event?: Event
 }
 
 type BaseDefineModuleOptions<
   GDatabase extends AnyRecord | undefined,
   GExtendConfig extends AnyRecord | undefined,
-> = GExtendConfig extends undefined ? BaseDefineModuleOptionsStaticOptions :
-  BaseDefineModuleOptionsStaticOptions & {
+> = GExtendConfig extends undefined ? ModuleOptionsStaticOptions :
+  ModuleOptionsStaticOptions & {
     configOptions: ConfigOptions<NeverIfNullable<GDatabase>, NeverIfNullable<GExtendConfig>>
-  }
-
-interface CommandHandlerOptions {
-  event: NewMessageEvent
-  plainMessage?: string | undefined
-}
-
-type DefineCommandModuleOptions<
-  GDatabase extends AnyRecord | undefined = undefined,
-  GExtendConfig extends AnyRecord | undefined = undefined,
-> =
-  BaseDefineModuleOptions<GDatabase, GExtendConfig> & {
-    type: 'command'
-    command: {
-      pattern: string
-      description: string
-      handler: (options: CommandHandlerOptions) => Promise<void> | void
-    }
   }
 
 export type DefineModuleOptions<
   GDatabase extends AnyRecord | undefined = AnyRecord | undefined,
   GExtendConfig extends AnyRecord | undefined = AnyRecord | undefined,
-> = (
-  DefineCommandModuleOptions<GDatabase, GExtendConfig>
-)
+> = BaseDefineModuleOptions<GDatabase, GExtendConfig>
 
 interface ModuleConfigStaticOptions<GConfigOptions extends ConfigOptions> {
   database: LowSync<GConfigOptions['defaultValue']>
@@ -67,19 +61,11 @@ export type ModuleConfig<
     [Key in keyof NeverIfNullable<GExtendRecord>]: NeverIfNullable<GExtendRecord>[Key]
   })
 
-type BaseModuleStaticOptions = BaseDefineModuleOptionsStaticOptions
-
 type BaseModule<GConfigOptions extends ConfigOptions | undefined> =
-GConfigOptions extends undefined ? BaseModuleStaticOptions
-  : (BaseModuleStaticOptions & {
+GConfigOptions extends undefined ? ModuleOptionsStaticOptions
+  : (ModuleOptionsStaticOptions & {
       config: ModuleConfig<NeverIfNullable<GConfigOptions>>
     })
 
-type CommandModule<GConfigOptions extends ConfigOptions | undefined> =
-  BaseModule<GConfigOptions> & {
-    command: DefineCommandModuleOptions['command']
-  }
-
-export type Module<GConfigOptions extends ConfigOptions | undefined = ConfigOptions | undefined> = (
-  CommandModule<GConfigOptions>
-)
+export type Module<GConfigOptions extends ConfigOptions | undefined = ConfigOptions | undefined> =
+  BaseModule<GConfigOptions>
