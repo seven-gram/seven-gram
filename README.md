@@ -32,7 +32,7 @@ You can install these by [this link](https://nodejs.org/en/download/)
 5. Start Seven Gram
 
     ```sh
-    npm run serve
+    npm run pm2:start
     ```
 
 ## 📃 Getting API Keys
