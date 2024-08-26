@@ -1,10 +1,14 @@
+import process from 'node:process'
 import { config } from 'dotenv'
 import { customCleanEnv, str } from 'envalid'
 import { memoize, omit } from 'lodash-es'
 
 export const useEnv = memoize(() => {
   return customCleanEnv(
-    config().parsed,
+    {
+      ...config().parsed,
+      ...process.env,
+    },
     {
       NODE_ENV: str({ choices: ['local', 'production'] }),
     },
