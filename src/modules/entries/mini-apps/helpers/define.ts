@@ -1,6 +1,6 @@
 import { createLogger } from 'src/logger.js'
-import type { DefineMiniAppOptions, MiniApp, MiniAppApi } from '../types.js'
 import type { MiniAppName } from '../enums.js'
+import type { DefineMiniAppOptions, MiniApp, MiniAppApi } from '../types.js'
 
 export function defineMiniApp<Name extends MiniAppName, Api extends MiniAppApi>(
   options: DefineMiniAppOptions<Name, Api>,

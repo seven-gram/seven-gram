@@ -5,6 +5,9 @@
     "paths": {
       "src/*": [
         "./src/*"
+      ],
+      "modules/*": [
+        "./src/modules/*"
       ]
     },
     "strict": true,

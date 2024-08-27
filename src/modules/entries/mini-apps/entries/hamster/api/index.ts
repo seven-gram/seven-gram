@@ -1,4 +1,4 @@
-import { defineMiniAppApi } from 'src/mini-apps/helpers/define.js'
+import { defineMiniAppApi } from 'src/modules/entries/mini-apps/helpers/define.js'
 import { getAccountInfo } from './account-info.js'
 import { authByTelegramWebapp } from './auth.js'
 import { getClickerUser } from './clicker-user.js'

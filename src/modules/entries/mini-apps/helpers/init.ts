@@ -2,9 +2,9 @@ import { CronJob, CronTime } from 'cron'
 import humanizeDuration from 'humanize-duration'
 import type { AxiosInstance } from 'axios'
 import axios, { AxiosError } from 'axios'
-import { useUserBot } from 'src/telegram/index.js'
 import type { AnyFn } from 'src/shared.js'
-import { miniApps } from '../index.js'
+import { useUserBot } from 'src/telegram/index.js'
+import { miniApps } from 'src/modules/entries/mini-apps/index.js'
 
 export async function initMiniApps() {
   const usersBots = [await useUserBot()]

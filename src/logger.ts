@@ -1,4 +1,4 @@
-import type { MiniAppName } from './mini-apps/enums.js'
+import type { MiniAppName } from './modules/entries/mini-apps/enums.js'
 import { checkIsBotInited } from './telegram/bot/use-bot.js'
 import { TelegramHelpers, useBot, useUserBot } from './telegram/index.js'
 
