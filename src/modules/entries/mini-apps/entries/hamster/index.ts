@@ -209,7 +209,11 @@ export const hamsterMiniApp = defineMiniApp({
         let { clickerUser } = await api.getClickerUser()
         const unavaliableSections = sections.filter(section => !section.isAvailable).map(section => section.section)
 
-        for (const upgradeForBuy of upgradesForBuy.toReversed()) {
+        const sortedUpgradesForBuy = upgradesForBuy
+          .toSorted((a, b) => b.profitPerHourDelta - a.profitPerHourDelta)
+          .toSorted(a => a.expiresAt ? -1 : 1)
+
+        for (const upgradeForBuy of sortedUpgradesForBuy) {
           if (
             !upgradeForBuy.isAvailable
             || upgradeForBuy.cooldownSeconds
