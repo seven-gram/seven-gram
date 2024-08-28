@@ -53,7 +53,11 @@ export async function getPromoCode(options: GetPromoCodeOptions): Promise<string
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
       'Host': 'api.gamepromo.io',
-      'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.3',
+      'User-Agent': 'UnityPlayer/2021.3.15f1 (UnityWebRequest/1.0, libcurl/7.84.0-DEV)',
+      'Accept': '/',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'X-Unity-Version': '2021.3.15f1',
+      'Connection': 'keep-alive',
     },
   })
 
