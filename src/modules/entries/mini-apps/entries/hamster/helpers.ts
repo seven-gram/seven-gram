@@ -1,21 +1,45 @@
 import { Buffer } from 'node:buffer'
+import { randomInt } from 'node:crypto'
+import * as crypto from 'node:crypto'
 import { faker } from '@faker-js/faker'
 import axios from 'axios'
 import { sleep } from 'src/shared.js'
 import retry from 'async-retry'
+import type { DailyKeysMiniGame } from './api/minigame.js'
 import type { HamsterTypes } from './index.js'
 
-export function getMiniGameCipher(userId: string, gameSleepTime: number): string {
-  const randomNumber = faker.helpers.rangeToNumber({
-    min: 10000000000,
-    max: 99999999999,
-  })
-  const cipher = `0${gameSleepTime}${randomNumber}`.substring(0, 10)
-  const body = `${cipher}|${userId}`
+export function getMiniGameCipher(miniGame: DailyKeysMiniGame, userId: string): string {
+  const number = Math.floor(new Date(miniGame.startDate).getTime() / 1000)
+  const numberLength = number.toString().length
+  const index = (number % (numberLength - 2)) + 1
 
-  const encodedBody = Buffer.from(body).toString('base64')
+  const res = (() => {
+    let _res = ''
+    for (let i = 1; i <= numberLength; i++) {
+      if (i === index) {
+        _res += '0'
+      }
+      else {
+        _res += randomInt(0, 10).toString()
+      }
+    }
+    return _res
+  })()
+  const score = miniGame.remainPoints > 300 ? randomInt(Math.floor(miniGame.remainPoints / 10), miniGame.remainPoints) : miniGame.remainPoints
+  const scoreCipher = 2 * (number + score)
+  const hash = crypto.createHash('sha256')
+    .update(`415t1ng${scoreCipher}0ra1cum5h0t`)
+    .digest('base64')
 
-  return encodedBody
+  const dataString = [
+    res,
+    userId,
+    miniGame.id,
+    scoreCipher.toString(),
+    hash,
+  ].join('|')
+
+  return Buffer.from(dataString).toString('base64')
 }
 
 export function decodeDailyCipher(cipher: string): string {

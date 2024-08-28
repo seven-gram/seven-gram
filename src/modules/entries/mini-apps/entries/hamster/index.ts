@@ -1,6 +1,8 @@
+import { randomInt } from 'node:crypto'
 import { faker } from '@faker-js/faker'
-import { convertToMilliseconds, sleep } from 'src/shared.js'
+import { convertToMilliseconds } from 'src/shared.js'
 import { TelegramHelpers } from 'src/telegram/index.js'
+import { sleep } from 'zx'
 import { defineMiniApp } from '../../helpers/define.js'
 import { MiniAppName } from '../../enums.js'
 import { createMiniAppConfigDatabase } from '../../helpers/config-database.js'
@@ -47,45 +49,45 @@ export const hamsterMiniApp = defineMiniApp({
       }),
     },
     {
-      name: 'Keys Minigame',
+      name: 'Keys Minigames',
       async callback({ logger, api }) {
         const {
-          dailyKeysMiniGame: {
-            isClaimed,
-            remainSecondsToNextAttempt,
-          },
+          dailyKeysMiniGames,
         } = await api.getConfig()
 
-        if (isClaimed) {
-          await logger.info(`Minigame is already claimed.`)
-          return
-        }
+        const currentlySupportedMinigames = ['Candles']
 
-        async function completeMinigame() {
-          const { clickerUser } = await api.getClickerUser()
-          const gameSleepTimeInSeconds = faker.helpers.rangeToNumber({ min: 15, max: 40 })
-          const cipher = HamsterHelpers.getMiniGameCipher(clickerUser.id, gameSleepTimeInSeconds)
-          await api.startDailyKeysMinigame()
-          await logger.info(`Daily keys minigame started. Sleep for ${gameSleepTimeInSeconds} seconds`)
-          await sleep(convertToMilliseconds({ seconds: gameSleepTimeInSeconds }))
-          const { clickerUser: newClickerUser, dailyKeysMiniGame } = await api.claimDailyKeysMinigame(cipher)
-
-          if (dailyKeysMiniGame.isClaimed) {
-            const keysRecieved = newClickerUser.totalKeys - clickerUser.totalKeys
-            await logger.info(`Key is succesfully claimed\nKeys recieved: ${keysRecieved}\nTotal keys: ${newClickerUser.totalKeys}`)
+        for (const [_, game] of Object.entries(dailyKeysMiniGames)) {
+          if (currentlySupportedMinigames.includes(game.id) === false) {
+            await logger.info(`Minigame ${game.id} is not supported yet.`)
+            return
           }
-        }
 
-        if (remainSecondsToNextAttempt >= 0) {
-          setTimeout(
-            () => completeMinigame(),
-            convertToMilliseconds({ seconds: remainSecondsToNextAttempt }),
-          )
-          await logger.info(`Can not complete minigame because of timeout. Next attempt planned after ${remainSecondsToNextAttempt} seconds`)
-          return
-        }
+          if (game.isClaimed) {
+            await logger.info(`Minigame ${game.id} is already claimed.`)
+            return
+          }
 
-        await completeMinigame()
+          if (game.remainSecondsToNextAttempt >= 0) {
+            await logger.info(`Can not complete minigame because of timeout.`)
+            // TODO: retry to run game
+            return
+          }
+
+          let currentIsClaimed = false
+          while (currentIsClaimed === false) {
+            const { clickerUser } = await api.getClickerUser()
+            await api.startDailyKeysMinigame(game.id)
+            const gameSleepTime = randomInt(15_000, 25_000)
+            await logger.info(`Daily keys minigame started. Sleep for ${gameSleepTime} seconds`)
+            await sleep(gameSleepTime)
+            const cipher = HamsterHelpers.getMiniGameCipher(game, clickerUser.id)
+            const { dailyKeysMiniGames } = await api.claimDailyKeysMinigame(cipher, game.id)
+            currentIsClaimed = dailyKeysMiniGames.isClaimed
+          }
+
+          await logger.info(`Mini Game ${game.id} is succesfully claimed`)
+        }
       },
       shedulerType: 'cron',
       cronExpression: `${faker.helpers.rangeToNumber({ min: 1, max: 59 })} 12 * * *`,
