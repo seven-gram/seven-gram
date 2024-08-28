@@ -49,7 +49,7 @@ export const hamsterMiniApp = defineMiniApp({
       }),
     },
     {
-      name: 'Keys Minigames',
+      name: 'Minigames',
       async callback({ logger, api }) {
         const {
           dailyKeysMiniGames,
@@ -79,7 +79,7 @@ export const hamsterMiniApp = defineMiniApp({
             const { clickerUser } = await api.getClickerUser()
             await api.startDailyKeysMinigame(game.id)
             const gameSleepTime = randomInt(15_000, 25_000)
-            await logger.info(`Daily keys minigame started. Sleep for ${gameSleepTime} seconds`)
+            await logger.info(`Daily keys minigame started. Sleep for ${gameSleepTime / 1000} seconds`)
             await sleep(gameSleepTime)
             const cipher = HamsterHelpers.getMiniGameCipher(game, clickerUser.id)
             const { dailyKeysMiniGames } = await api.claimDailyKeysMinigame(cipher, game.id)
