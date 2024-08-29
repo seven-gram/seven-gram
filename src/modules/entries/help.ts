@@ -13,10 +13,11 @@ export const helpModule = defineModule({
       pattern: 'help',
       description: `Display all commands`,
       async handler({ event }) {
+        console.log('asd')
         let messageText = ''
         for (const module of modules) {
           if (module.event?.type !== 'command')
-            return
+            continue
 
           if (messageText.length)
             messageText += '\n'
