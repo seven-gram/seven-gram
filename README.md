@@ -23,16 +23,17 @@ You can install these by [this link](https://nodejs.org/en/download/)
     npm run build
     ```
 
-4. Install pm2 globally
+4. Create .env file and fill `NODE_ENV` variable. Supported values: `local`, `production` 
 
     ```sh
-    npm i -g pm2
+    cp .env.example .env
+    nano .env
     ```
 
 5. Start Seven Gram
 
     ```sh
-    npm run pm2:start
+    npm run start
     ```
 
 ## 📃 Getting API Keys
