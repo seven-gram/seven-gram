@@ -7,35 +7,6 @@
 
 You can install these by [this link](https://nodejs.org/en/download/)
 
-## Getting started
-
-1. Clone this repository
-
-2. Install dependencies
-
-    ```sh
-    npm i
-    ```
-
-3. Run build
-
-    ```sh
-    npm run build
-    ```
-
-4. Create .env file and fill `NODE_ENV` variable. Supported values: `local`, `production`
-
-    ```sh
-    cp .env.example .env
-    nano .env
-    ```
-
-5. Start Seven Gram
-
-    ```sh
-    npm run start
-    ```
-
 ## 📃 Getting API Keys
 
 1. Go to [my.telegram.org](https://my.telegram.org) and log in using your phone number.
