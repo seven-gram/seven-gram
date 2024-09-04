@@ -1,8 +1,9 @@
 import { randomInt } from 'node:crypto'
 import { faker } from '@faker-js/faker'
-import { convertToMilliseconds } from 'src/shared.js'
+import { convertToMilliseconds, formatCoins } from 'src/shared.js'
 import { TelegramHelpers } from 'src/telegram/index.js'
 import { sleep } from 'zx'
+import { doFloodProtect } from 'src/telegram/helpers/index.js'
 import { defineMiniApp } from '../../helpers/define.js'
 import { MiniAppName } from '../../enums.js'
 import { createMiniAppConfigDatabase } from '../../helpers/config-database.js'
@@ -42,55 +43,124 @@ export const hamsterMiniApp = defineMiniApp({
         availableTaps = availableTaps - tapsCount * earnPerTap
         await logger.info(`Tapped: ${tapsCount} times\nCurrent energy is ${availableTaps}`)
       },
-      shedulerType: 'timeout',
       timeout: () => faker.helpers.rangeToNumber({
         min: convertToMilliseconds({ minutes: 50 }),
         max: convertToMilliseconds({ minutes: 60 }),
       }),
     },
     {
-      name: 'Minigames',
-      async callback({ logger, api }) {
+      name: 'Candles',
+      async callback({ api, logger }) {
         const {
-          dailyKeysMiniGames,
+          dailyKeysMiniGames: { Candles: game },
         } = await api.getConfig()
 
-        const currentlySupportedMinigames = ['Candles']
+        if (!game) {
+          logger.info('Can not find Candles game in config')
+          return
+        }
 
-        for (const [_, game] of Object.entries(dailyKeysMiniGames)) {
-          if (currentlySupportedMinigames.includes(game.id) === false) {
-            await logger.info(`Minigame ${game.id} is not supported yet.`)
-            return
+        if (game.isClaimed) {
+          await logger.info(`Minigame ${game.id} is already claimed.`)
+          return
+        }
+
+        if (game.remainSecondsToNextAttempt >= 0) {
+          await logger.info(`Can not complete minigame because of timeout. Next retry after ${game.remainSecondsToNextAttempt} secconds`)
+          return {
+            extraRestartTimeout: convertToMilliseconds({
+              seconds: game.remainSecondsToNextAttempt,
+            }),
           }
+        }
 
-          if (game.isClaimed) {
-            await logger.info(`Minigame ${game.id} is already claimed.`)
-            return
-          }
+        const { clickerUser } = await api.getClickerUser()
+        await api.startDailyKeysMinigame(game.id)
+        const gameSleepTime = randomInt(15_000, 25_000)
+        logger.info(
+          `${game.id} minigame started`
+          + `\nSleep ${gameSleepTime / 1000} seconds`,
+        )
+        await sleep(gameSleepTime)
+        const cipher = HamsterHelpers.createGetMiniGameCipherFactory().getMiniGameCipher(game, clickerUser.id)
+        const { dailyKeysMiniGames, clickerUser: { totalKeys: newTotalKeys }, bonus } = await api.claimDailyKeysMinigame(cipher, game.id)
 
-          if (game.remainSecondsToNextAttempt >= 0) {
-            await logger.info(`Can not complete minigame because of timeout.`)
-            // TODO: retry to run game
-            return
-          }
-
-          let currentIsClaimed = false
-          while (currentIsClaimed === false) {
-            const { clickerUser } = await api.getClickerUser()
-            await api.startDailyKeysMinigame(game.id)
-            const gameSleepTime = randomInt(15_000, 25_000)
-            await logger.info(`Daily keys minigame started. Sleep for ${gameSleepTime / 1000} seconds`)
-            await sleep(gameSleepTime)
-            const cipher = HamsterHelpers.getMiniGameCipher(game, clickerUser.id)
-            const { dailyKeysMiniGames } = await api.claimDailyKeysMinigame(cipher, game.id)
-            currentIsClaimed = dailyKeysMiniGames.isClaimed
-          }
-
-          await logger.info(`Mini Game ${game.id} is succesfully claimed`)
+        if (dailyKeysMiniGames.isClaimed) {
+          await logger.success(
+          `Mini game ${game.id} is succesfully claimed`
+          + `\nTotal keys: ${newTotalKeys} (+${bonus})`,
+          )
+        }
+        else {
+          logger.info(`Can not claim mini game ${game.id} with _${cipher}_ cipher`)
         }
       },
-      shedulerType: 'cron',
-      cronExpression: `${faker.helpers.rangeToNumber({ min: 1, max: 59 })} 12 * * *`,
+      timeout: ({ createCronTimeoutWithDeviation }) =>
+        createCronTimeoutWithDeviation('* 12 * * *', convertToMilliseconds({ minutes: 30 })),
+    },
+    {
+      name: 'Tiles',
+      async callback({ logger, api }) {
+        const {
+          dailyKeysMiniGames: { Tiles: game },
+        } = await api.getConfig()
+
+        if (!game) {
+          logger.info('Can not find Tiles game in config')
+          return
+        }
+
+        if (game.isClaimed) {
+          await logger.info(`Mini game ${game.id} is already claimed`)
+          return
+        }
+
+        const TILES_POINTS_PER_GAME = [20, 30] as const
+        const TILES_ITERATIONS_PER_EXECUTION = [3, 10] as const
+
+        let currentGame = game
+        const gameIterations = randomInt(TILES_ITERATIONS_PER_EXECUTION[0], TILES_ITERATIONS_PER_EXECUTION[1])
+        for (const _ of Array.from(Array(gameIterations).keys())) {
+          if (currentGame.isClaimed) {
+            break
+          }
+
+          const pointsToFarm = currentGame.remainPoints <= TILES_POINTS_PER_GAME[1]
+            ? currentGame.remainPoints
+            : randomInt(TILES_POINTS_PER_GAME[0], TILES_POINTS_PER_GAME[1])
+
+          const { clickerUser } = await api.getClickerUser()
+          await api.startDailyKeysMinigame(game.id)
+          const { timeToFarmPoints, getMiniGameCipher } = HamsterHelpers.createGetMiniGameCipherFactory(pointsToFarm)
+          logger.info(
+            `${game.id} minigame started`
+            + `\nPoints recieved: ${(currentGame.maxPoints ?? 0) - currentGame.remainPoints}/${currentGame.maxPoints}`
+            + `\nPoints to farm: ${pointsToFarm}`
+            + `\nSleep: ${timeToFarmPoints / 1000} seconds`,
+          )
+          await sleep(timeToFarmPoints)
+          const cipher = getMiniGameCipher(game, clickerUser.id)
+          const { dailyKeysMiniGames, clickerUser: newClickerUser, bonus } = await api.claimDailyKeysMinigame(cipher, game.id)
+          currentGame = dailyKeysMiniGames
+
+          await logger.success(
+          `Part of the ${game.id} mini game prize was succesfully recieved`
+          + `\nTotal coins: ${formatCoins(newClickerUser.totalCoins)} (+${formatCoins(bonus)})`,
+          )
+          await doFloodProtect()
+        }
+
+        if (currentGame.isClaimed) {
+          await logger.success(`Minigame ${game.id} was succesfully claimed`)
+        }
+        else {
+          return {
+            extraRestartTimeout: randomInt(convertToMilliseconds({ minutes: 10 }), convertToMilliseconds({ minutes: 15 })),
+          }
+        }
+      },
+      timeout: ({ createCronTimeoutWithDeviation }) =>
+        createCronTimeoutWithDeviation('* 12 * * *', convertToMilliseconds({ minutes: 30 })),
     },
     {
       name: 'Daily Cipher',
@@ -104,10 +174,13 @@ export const hamsterMiniApp = defineMiniApp({
 
         const decodedCipher = HamsterHelpers.decodeDailyCipher(cipher)
         const { dailyCipher: { bonusCoins } } = await api.claimDailyCipher(decodedCipher)
-        await logger.success(`Successfully claim daily cipher: ${decodedCipher}\nBonus: ${bonusCoins}`)
+        await logger.success(
+          `Successfully claim daily cipher: ${decodedCipher}`
+          + `\nBonus: ${bonusCoins}`,
+        )
       },
-      shedulerType: 'cron',
-      cronExpression: `${faker.helpers.rangeToNumber({ min: 1, max: 59 })} 13 * * *`,
+      timeout: ({ createCronTimeoutWithDeviation }) =>
+        createCronTimeoutWithDeviation('* 13 * * *', convertToMilliseconds({ minutes: 30 })),
     },
     {
       name: 'Playground',
@@ -160,8 +233,8 @@ export const hamsterMiniApp = defineMiniApp({
           await TelegramHelpers.doFloodProtect()
         }
       },
-      shedulerType: 'cron',
-      cronExpression: `${faker.helpers.rangeToNumber({ min: 1, max: 59 })} 14 * * *`,
+      timeout: ({ createCronTimeoutWithDeviation }) =>
+        createCronTimeoutWithDeviation('* 14 * * *', convertToMilliseconds({ minutes: 30 })),
     },
     {
       name: 'Tasks',
@@ -198,11 +271,7 @@ export const hamsterMiniApp = defineMiniApp({
           }
         }
       },
-      shedulerType: 'timeout',
-      timeout: () => faker.helpers.rangeToNumber({
-        min: convertToMilliseconds({ hours: 5 }),
-        max: convertToMilliseconds({ hours: 6 }),
-      }),
+      timeout: ({ randomInt }) => randomInt(convertToMilliseconds({ hours: 5 }), convertToMilliseconds({ hours: 6 })),
     },
     {
       name: 'Mining',
@@ -240,11 +309,7 @@ export const hamsterMiniApp = defineMiniApp({
           await buyUpgrade()
         }
       },
-      shedulerType: 'timeout',
-      timeout: () => faker.helpers.rangeToNumber({
-        min: convertToMilliseconds({ minutes: 30 }),
-        max: convertToMilliseconds({ minutes: 40 }),
-      }),
+      timeout: ({ randomInt }) => randomInt(convertToMilliseconds({ minutes: 30 }), convertToMilliseconds({ minutes: 40 })),
     },
   ],
 })

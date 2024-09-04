@@ -3,7 +3,7 @@ import type { HamsterTypes } from '../index.js'
 
 export interface DailyKeysMiniGame {
   id: string
-  startDate: Date
+  startDate: string
   levelConfig: string
   youtubeUrl: string
   bonusKeys: number
@@ -33,6 +33,7 @@ export async function startDailyKeysMinigame(axiosClient: AxiosInstance, miniGam
 interface ClaimDailyKeysMinigameResult {
   clickerUser: HamsterTypes.ClickerUser
   dailyKeysMiniGames: DailyKeysMiniGame
+  bonus: number
 }
 
 export async function claimDailyKeysMinigame(axiosClient: AxiosInstance, cipher: string, miniGameId: string): Promise<ClaimDailyKeysMinigameResult> {

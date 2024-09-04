@@ -5,7 +5,10 @@ import type { DailyKeysMiniGame } from './minigame.js'
 interface GetConfigResponse {
   dailyCipher: HamsterTypes.DailyCipher
   feature: string[]
-  dailyKeysMiniGames: Record<string, DailyKeysMiniGame>
+  dailyKeysMiniGames: {
+    Candles?: DailyKeysMiniGame
+    Tiles?: DailyKeysMiniGame
+  }
 }
 
 export async function getConfig(axiosClient: AxiosInstance): Promise<GetConfigResponse> {
