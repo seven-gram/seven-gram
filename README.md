@@ -54,4 +54,3 @@ Log info to special channel on your main telegram accout
 Commands avaliable from every chats (instead notes)
 
 ![image](https://github.com/user-attachments/assets/6574ac3d-c871-4b01-8216-8fdad73b8e53)
-
