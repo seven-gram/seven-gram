@@ -2,7 +2,7 @@
 
 ## 📌 Prerequisites
 
-- `Node.js`v20 or greater
+- `Node.js`v22 or greater
 - `Npm` v10 or greater
 
 You can install these by [this link](https://nodejs.org/en/download/)
@@ -23,7 +23,7 @@ You can install these by [this link](https://nodejs.org/en/download/)
     npm run build
     ```
 
-4. Create .env file and fill `NODE_ENV` variable. Supported values: `local`, `production` 
+4. Create .env file and fill `NODE_ENV` variable. Supported values: `local`, `production`
 
     ```sh
     cp .env.example .env
@@ -54,5 +54,4 @@ Log info to special channel on your main telegram accout
 Commands avaliable from every chats (instead notes)
 
 ![image](https://github.com/user-attachments/assets/6574ac3d-c871-4b01-8216-8fdad73b8e53)
-
 
