@@ -1,9 +1,8 @@
 import { existsSync, mkdirSync } from 'node:fs'
 import { JSONFileSyncPreset } from 'lowdb/node'
 import { memoize } from 'lodash-es'
-import objectHash from 'object-hash'
 import type { MiniAppName } from '../enums.js'
-import type { MiniAppConfig, MiniAppConfigDatabase } from '../types.js'
+import type { CallbackEntityConfigHashOptions, MiniAppConfig, MiniAppConfigDatabase } from '../types.js'
 
 export function createMiniAppConfigDatabase(name: MiniAppName) {
   return memoize((): MiniAppConfigDatabase => {
@@ -29,12 +28,15 @@ export function createMiniAppConfigDatabase(name: MiniAppName) {
       database.write()
     }
 
+    const createHashFromOptions = (options: CallbackEntityConfigHashOptions) =>
+      `${options.miniAppName}_${options.callbackEntityName}_${options.callbackEntityIndex}`
+
     const updateCallbackEntity: MiniAppConfigDatabase['updateCallbackEntity'] = (
       sessionId,
       options,
       updateInput,
     ) => {
-      const hashId = objectHash(options)
+      const hashId = createHashFromOptions(options)
       database.data.sessions[sessionId] ??= {}
       database.data.sessions[sessionId].callbackEntities ??= {}
       database.data.sessions[sessionId].callbackEntities[hashId] = updateInput
@@ -45,7 +47,7 @@ export function createMiniAppConfigDatabase(name: MiniAppName) {
       sessionId,
       options,
     ) => {
-      const hashId = objectHash(options)
+      const hashId = createHashFromOptions(options)
       return database.data.sessions?.[sessionId]?.callbackEntities?.[hashId]
     }
 

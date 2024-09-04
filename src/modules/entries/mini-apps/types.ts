@@ -1,9 +1,11 @@
+import type { randomInt as _randomInt } from 'node:crypto'
 import type { AxiosInstance, HeadersDefaults } from 'axios'
 import type { Logger } from 'src/logger.js'
 import type { LowSync } from 'lowdb'
 import type axios from 'axios'
-import type { OmitFirstArg } from 'src/shared.js'
+import type { MaybePromiseLike, OmitFirstArg, createCronTimeoutWithDeviation as _createCronTimeoutWithDeviation } from 'src/shared.js'
 import type { UserBot } from 'src/telegram/user-bot/types.js'
+import type { CronJobParams, CronTime } from 'cron'
 import type { MiniAppName } from './enums.js'
 
 export type MiniAppApi = {
@@ -28,7 +30,7 @@ export interface MiniAppConfig {
   }
 }
 
-interface CallbackEntityConfigHashOptions {
+export interface CallbackEntityConfigHashOptions {
   miniAppName: string
   callbackEntityName: string
   callbackEntityIndex: number
@@ -54,18 +56,19 @@ type MiniAppCallback<Name, Api> = (context: MiniApp<Name, Api>['public'] & {
   api: {
     [Key in keyof Api]: OmitFirstArg<Api[Key]>
   }
-}) => void | Promise<void>
+}) => MaybePromiseLike<void | {
+  extraRestartTimeout?: number
+}>
 
-type MiniAppCallbackEntity<Name, Api> = {
+interface MiniAppCallbackEntity<Name, Api> {
   name: string
+  timeout: (options: {
+    createCronTime: (cronJobParams: CronJobParams['cronTime']) => CronTime
+    randomInt: typeof _randomInt
+    createCronTimeoutWithDeviation: typeof _createCronTimeoutWithDeviation
+  }) => number
   callback: MiniAppCallback<Name, Api>
-} & ({
-  shedulerType: 'cron'
-  cronExpression: string
-} | {
-  shedulerType: 'timeout'
-  timeout: () => number
-})
+}
 
 export interface DefineMiniAppOptions<Name, Api> {
   name: Name

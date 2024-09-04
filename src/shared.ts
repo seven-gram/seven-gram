@@ -1,3 +1,7 @@
+import { randomInt } from 'node:crypto'
+import type { CronJobParams } from 'cron'
+import { CronTime } from 'cron'
+
 export type AnyFn = (...args: any[]) => any
 
 export function sleep(duration: number) {
@@ -25,3 +29,14 @@ export function convertToMilliseconds(options: {
 
 export type NeverIfNullable<T> = T extends null ? never : T extends undefined ? never : T
 export type AnyRecord = Record<string, any>
+export type MaybePromiseLike<T> = T | PromiseLike<T>
+
+const intlNumberFormat = new Intl.NumberFormat()
+export function formatCoins(coins: number) {
+  return intlNumberFormat.format(coins)
+}
+
+export function createCronTimeoutWithDeviation(cronJobParams: CronJobParams['cronTime'], deviation: number) {
+  const cronTimeout = new CronTime(cronJobParams).getTimeout()
+  return randomInt(cronTimeout - deviation, cronTimeout + deviation)
+}
