@@ -90,7 +90,7 @@ export async function getPromoCode(options: GetPromoCodeOptions): Promise<string
     appToken,
     promo,
     eventTimeout = 20000,
-    maxAttemptsCount = 15,
+    maxAttemptsCount = 40,
   } = options
 
   const httpClient = axios.create({
