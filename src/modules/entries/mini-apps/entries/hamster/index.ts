@@ -115,8 +115,8 @@ export const hamsterMiniApp = defineMiniApp({
           return
         }
 
-        const TILES_POINTS_PER_GAME = [20, 30] as const
-        const TILES_ITERATIONS_PER_EXECUTION = [3, 10] as const
+        const TILES_POINTS_PER_GAME = [350, 550] as const
+        const TILES_ITERATIONS_PER_EXECUTION = [4, 10] as const
 
         let currentGame = game
         const gameIterations = randomInt(TILES_ITERATIONS_PER_EXECUTION[0], TILES_ITERATIONS_PER_EXECUTION[1])
