@@ -1,12 +1,15 @@
-export const HamsterStatic = {
-  URL: 'https://hamsterkombatgame.io/',
-  BOT_ENTITY: '@hamster_kombat_bot',
+export const BlumStatic = {
+  URL: 'https://telegram.blum.codes/',
+  BOT_ENTITY: '@BlumCryptoBot',
   DEFAULT_HEADERS: {
-    'Accept': '*/*',
-    'Accept-Language': 'ru,ru-RU;q=0.9,en-US;q=0.8,en;q=0.7',
-    'Connection': 'keep-alive',
-    'Origin': 'https://hamsterkombatgame.io',
-    'Referer': 'https://hamsterkombatgame.io/',
+    'Scheme': 'https',
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-encoding': 'gzip, deflate, br, zstd',
+    'Accept-language': 'ru-UA,ru-RU;q=0.9,ru;q=0.8,en-US;q=0.7,en;q=0.6,uk;q=0.5',
+    'Cache-control': 'no-cache',
+    'Origin': 'https://telegram.blum.codes',
+    'Pragma': 'no-cache',
+    'Priority': 'u=1, i',
     'Sec-Fetch-Dest': 'empty',
     'Sec-Fetch-Mode': 'cors',
     'Sec-Fetch-Site': 'same-site',

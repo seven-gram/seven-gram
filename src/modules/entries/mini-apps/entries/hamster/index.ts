@@ -27,7 +27,7 @@ export const hamsterMiniApp = defineMiniApp({
 
       return axiosClient
     },
-    lifetime: 1000 * 60 * 60 * 12,
+    lifetime: convertToMilliseconds({ hours: 24 }),
   },
   callbackEntities: [
     {

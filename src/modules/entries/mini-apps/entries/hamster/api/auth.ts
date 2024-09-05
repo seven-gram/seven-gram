@@ -9,7 +9,7 @@ interface AuthByTelegramWebapp {
 export async function authByTelegramWebapp(axiosClient: AxiosInstance): Promise<Required<AuthByTelegramWebapp>> {
   const userBot = await useUserBot()
   const fingerprint = TelegramHelpers.getFingerprint()
-  const webAppData = await userBot.getWebAppData(HamsterStatic.HAMSTER_BOT_ENTITY, HamsterStatic.HAMSTER_URL)
+  const webAppData = await userBot.getWebAppData(HamsterStatic.BOT_ENTITY, HamsterStatic.URL)
 
   const response = await axiosClient
     .post<AuthByTelegramWebapp>(
