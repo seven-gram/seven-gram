@@ -118,30 +118,48 @@ export const blumMiniApp = defineMiniApp({
           )
         await logger.info(`Starting ${randomGamesCount} game sessions`)
 
+        let claimedGamesCount = 0
         for (let i = 0; i < randomGamesCount; i++) {
-          const { gameId } = await api.startGame()
-          const timeToSleep = randomInt(
-            convertToMilliseconds({ seconds: 29 }),
-            convertToMilliseconds({ seconds: 37 }),
-          )
-          const randomPointsCount = randomInt(POINTS_PER_GAME[0], POINTS_PER_GAME[1])
-          await logger.info(
-            `Starting ${gameId} game session...`
-            + `\nSleep time: ${timeToSleep / 1000} seconds`
-            + `\nPoints to farm : ${randomPointsCount}`,
-          )
-          await sleep(timeToSleep)
-          await api.claimGame(gameId, randomPointsCount)
-          balance = await api.getBalance()
-          await logger.success(
-          `Game session ${gameId} done.`
-          + `\nTotal points: ${balance.availableBalance} (+${randomPointsCount})`
-          + `\nPasses left: ${balance.playPasses}`,
-          )
-          await sleep(randomInt(
-            convertToMilliseconds({ seconds: 5 }),
-            convertToMilliseconds({ seconds: 10 }),
-          ))
+          try {
+            const { gameId } = await api.startGame()
+            const timeToSleep = randomInt(
+              convertToMilliseconds({ seconds: 29 }),
+              convertToMilliseconds({ seconds: 37 }),
+            )
+            const randomPointsCount = randomInt(POINTS_PER_GAME[0], POINTS_PER_GAME[1])
+            await logger.info(
+              `Starting ${gameId} game session...`
+              + `\nSleep time: ${timeToSleep / 1000} seconds`
+              + `\nPoints to farm : ${randomPointsCount}`,
+            )
+            await sleep(timeToSleep)
+            await api.claimGame(gameId, randomPointsCount)
+            balance = await api.getBalance()
+            await logger.success(
+            `Game session ${gameId} done.`
+            + `\nTotal points: ${balance.availableBalance} (+${randomPointsCount})`
+            + `\nPasses left: ${balance.playPasses}`,
+            )
+            await sleep(randomInt(
+              convertToMilliseconds({ seconds: 10 }),
+              convertToMilliseconds({ seconds: 20 }),
+            ))
+            claimedGamesCount++
+          }
+          catch (error) {
+            if (i === randomGamesCount - 1 && claimedGamesCount === 0) {
+              throw (error)
+            }
+
+            if (error instanceof AxiosError) {
+              await logger.error(
+              `An error occurs while executing game iteration with index ${i + 1}`
+              + `\n\`\`\`Message: ${error.message}\`\`\``
+              + `\nSkipping game...`,
+              )
+              await sleep(convertToMilliseconds({ seconds: 15 }))
+            }
+          }
         }
 
         if (balance.playPasses) {
