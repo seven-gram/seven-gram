@@ -1,5 +1,6 @@
 import { AppMeta } from 'src/meta.js'
 import { $ } from 'zx'
+import { convertToMilliseconds, sleep } from 'src/shared.js'
 import { defineModule } from '../helpers/define.js'
 import { reloadApplication } from './reload/helpers/reload.js'
 
@@ -30,6 +31,7 @@ export const updateModule = defineModule({
 
         await pullingMessage?.edit({ text: 'Installing dependencies...' })
         await $`npm ci`
+        await sleep(convertToMilliseconds({ seconds: 5 }))
 
         await pullingMessage?.edit({ text: 'Building...' })
         await $`npm run build`
