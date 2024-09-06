@@ -116,8 +116,8 @@ export const blumMiniApp = defineMiniApp({
         for (let i = 0; i < randomGamesCount; i++) {
           const { gameId } = await api.startGame()
           const timeToSleep = randomInt(
-            convertToMilliseconds({ seconds: 30 }),
-            convertToMilliseconds({ seconds: 32 }),
+            convertToMilliseconds({ seconds: 29 }),
+            convertToMilliseconds({ seconds: 37 }),
           )
           const randomPointsCount = randomInt(POINTS_PER_GAME[0], POINTS_PER_GAME[1])
           await logger.info(
