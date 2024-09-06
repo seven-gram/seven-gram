@@ -3,12 +3,11 @@ import { defineMiniApps } from './helpers/define.js'
 import { MiniAppName } from './enums.js'
 import { initMiniApps } from './helpers/init.js'
 import { blumMiniApp } from './entries/blum/index.js'
-import { hamsterMiniApp } from './entries/hamster/index.js'
 
 export { initMiniApps } from './helpers/init.js'
 
 export const miniApps = defineMiniApps([
-  hamsterMiniApp,
+  // hamsterMiniApp,
   blumMiniApp,
 ])
 

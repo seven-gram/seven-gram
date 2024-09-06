@@ -40,7 +40,6 @@ async function getToken(axiosClient: AxiosInstance) {
       { query: webAppData },
     )).data
   }
-  console.log('data', data)
 
   const { access: authToken } = data.token
   if (!authToken) {

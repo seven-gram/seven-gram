@@ -51,7 +51,6 @@ export const blumMiniApp = defineMiniApp({
           await doFloodProtect()
           await logger.success(`Farming started`)
           balance = await api.getBalance()
-          console.log('balance', balance)
           const timeToFarmingEnd = balance.farming?.endTime ?? 0 - Date.now()
           if (timeToFarmingEnd > 0) {
             return {
@@ -129,7 +128,7 @@ export const blumMiniApp = defineMiniApp({
           await sleep(timeToSleep)
           await api.claimGame(gameId, randomPointsCount)
           balance = await api.getBalance()
-          await logger.info(
+          await logger.success(
           `Game session ${gameId} done.`
           + `\nTotal points: ${balance.availableBalance} (+${randomPointsCount})`
           + `\nPasses left: ${balance.playPasses}`,
