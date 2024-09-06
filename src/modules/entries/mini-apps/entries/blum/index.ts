@@ -1,5 +1,6 @@
 import { randomInt } from 'node:crypto'
 import { convertToMilliseconds, sleep } from 'src/shared.js'
+import { doFloodProtect } from 'src/telegram/helpers/index.js'
 import { defineMiniApp } from '../../helpers/define.js'
 import { MiniAppName } from '../../enums.js'
 import { createMiniAppConfigDatabase } from '../../helpers/config-database.js'
@@ -22,13 +23,73 @@ export const blumMiniApp = defineMiniApp({
   },
   callbackEntities: [
     {
+      name: 'Farming',
+      async callback({ logger, api }) {
+        let balance = await api.getBalance()
+
+        if (!balance.farming) {
+          await logger.info(`Starting farming...`)
+          await api.startFarming()
+          await doFloodProtect()
+          await logger.success(`Farming started`)
+          balance = await api.getBalance()
+          console.log('balance', balance)
+          const timeToFarmingEnd = balance.farming?.endTime ?? 0 - Date.now()
+          if (timeToFarmingEnd > 0) {
+            return {
+              extraRestartTimeout: randomInt(
+                timeToFarmingEnd + convertToMilliseconds({ minutes: 1 }),
+                timeToFarmingEnd + convertToMilliseconds({ minutes: 3 }),
+              ),
+            }
+          }
+          return
+        }
+
+        let timeToFarmingEnd = balance.farming.endTime - Date.now()
+
+        if (timeToFarmingEnd <= 0) {
+          await api.claimFarming()
+          await doFloodProtect()
+          await logger.info(`Starting farming...`)
+          await api.startFarming()
+          await doFloodProtect()
+          await logger.success(`Farming started`)
+          balance = await api.getBalance()
+          if (balance.farming)
+            timeToFarmingEnd = balance.farming.endTime - Date.now()
+          if (timeToFarmingEnd > 0) {
+            return {
+              extraRestartTimeout: randomInt(
+                timeToFarmingEnd + convertToMilliseconds({ minutes: 1 }),
+                timeToFarmingEnd + convertToMilliseconds({ minutes: 3 }),
+              ),
+            }
+          }
+        }
+        else {
+          await logger.info(`Farming is already started`)
+          return {
+            extraRestartTimeout: randomInt(
+              timeToFarmingEnd + convertToMilliseconds({ minutes: 1 }),
+              timeToFarmingEnd + convertToMilliseconds({ minutes: 3 }),
+            ),
+          }
+        }
+      },
+      timeout: () => randomInt(
+        convertToMilliseconds({ hours: 8 }),
+        convertToMilliseconds({ hours: 8, minutes: 5 }),
+      ),
+    },
+    {
       name: 'Play Passes',
       async callback({ logger, api }) {
         const POINTS_PER_GAME = [200, 230] as const
         let balance = await api.getBalance()
 
         if (!balance.playPasses) {
-          await logger.error(`There are no play passes. Sleep...`)
+          await logger.info(`There are no play passes. Sleep...`)
           return
         }
 

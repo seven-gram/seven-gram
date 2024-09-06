@@ -58,7 +58,7 @@ export interface GetBalanceResponce {
   playPasses: number
   isFastFarmingEnabled: boolean
   timestamp: number
-  farming: {
+  farming?: {
     startTime: number
     endTime: number
     earningsRate: string
