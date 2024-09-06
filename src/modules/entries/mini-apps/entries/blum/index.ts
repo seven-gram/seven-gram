@@ -110,7 +110,12 @@ export const blumMiniApp = defineMiniApp({
           return
         }
 
-        const randomGamesCount = balance.playPasses <= 5 ? balance.playPasses : randomInt(5, balance.playPasses)
+        const randomGamesCount = balance.playPasses <= 5
+          ? balance.playPasses
+          : randomInt(
+            5,
+            balance.playPasses < 10 ? balance.playPasses : 10,
+          )
         await logger.info(`Starting ${randomGamesCount} game sessions`)
 
         for (let i = 0; i < randomGamesCount; i++) {
@@ -142,8 +147,8 @@ export const blumMiniApp = defineMiniApp({
         if (balance.playPasses) {
           return {
             extraRestartTimeout: randomInt(
-              convertToMilliseconds({ minutes: 20 }),
-              convertToMilliseconds({ minutes: 30 }),
+              convertToMilliseconds({ minutes: 25 }),
+              convertToMilliseconds({ minutes: 35 }),
             ),
           }
         }
