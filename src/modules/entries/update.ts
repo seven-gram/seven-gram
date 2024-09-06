@@ -28,12 +28,12 @@ export const updateModule = defineModule({
           return
         }
 
-        if (/package(?:-lock)?\.json/.test(pullResult.stdout)) {
-          await $`npm i`
-        }
+        await pullingMessage?.edit({ text: 'Installing dependencies...' })
+        await $`npm ci`
 
+        await pullingMessage?.edit({ text: 'Building...' })
         await $`npm run build`
-        await pullingMessage?.edit({ text: 'Updated' })
+        await pullingMessage?.edit({ text: 'Update finished! Now need to reload app.' })
         const reloadingMessage = await event.message.reply({ message: 'Reload executed...' })
         await reloadApplication(reloadingMessage)
       },
