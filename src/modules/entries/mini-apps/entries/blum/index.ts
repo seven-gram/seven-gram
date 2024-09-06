@@ -1,6 +1,7 @@
 import { randomInt } from 'node:crypto'
 import { convertToMilliseconds, sleep } from 'src/shared.js'
 import { doFloodProtect } from 'src/telegram/helpers/index.js'
+import { AxiosError } from 'axios'
 import { defineMiniApp } from '../../helpers/define.js'
 import { MiniAppName } from '../../enums.js'
 import { createMiniAppConfigDatabase } from '../../helpers/config-database.js'
@@ -22,6 +23,23 @@ export const blumMiniApp = defineMiniApp({
     lifetime: convertToMilliseconds({ hours: 24 }),
   },
   callbackEntities: [
+    {
+      name: 'Daily Reward',
+      async callback({ logger, api }) {
+        try {
+          await api.claimDailyReward()
+          await logger.success(`Daily reward was succesfully claimed`)
+        }
+        catch (error) {
+          if (error instanceof AxiosError) {
+            await logger.info(`Can not claim daily reward. Maybe reward was claimed yet`)
+            throw error
+          }
+        }
+      },
+      timeout: ({ createCronTimeoutWithDeviation }) =>
+        createCronTimeoutWithDeviation('* 9 * * *', convertToMilliseconds({ minutes: 30 })),
+    },
     {
       name: 'Farming',
       async callback({ logger, api }) {
