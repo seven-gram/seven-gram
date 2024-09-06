@@ -96,7 +96,7 @@ export const hamsterMiniApp = defineMiniApp({
         }
       },
       timeout: ({ createCronTimeoutWithDeviation }) =>
-        createCronTimeoutWithDeviation('* 12 * * *', convertToMilliseconds({ minutes: 30 })),
+        createCronTimeoutWithDeviation('0 12 * * *', convertToMilliseconds({ minutes: 30 })),
     },
     {
       name: 'Tiles',
@@ -160,7 +160,7 @@ export const hamsterMiniApp = defineMiniApp({
         }
       },
       timeout: ({ createCronTimeoutWithDeviation }) =>
-        createCronTimeoutWithDeviation('* 12 * * *', convertToMilliseconds({ minutes: 30 })),
+        createCronTimeoutWithDeviation('0 12 * * *', convertToMilliseconds({ minutes: 30 })),
     },
     {
       name: 'Daily Cipher',
@@ -180,7 +180,7 @@ export const hamsterMiniApp = defineMiniApp({
         )
       },
       timeout: ({ createCronTimeoutWithDeviation }) =>
-        createCronTimeoutWithDeviation('* 13 * * *', convertToMilliseconds({ minutes: 30 })),
+        createCronTimeoutWithDeviation('0 13 * * *', convertToMilliseconds({ minutes: 30 })),
     },
     {
       name: 'Playground',
@@ -234,7 +234,7 @@ export const hamsterMiniApp = defineMiniApp({
         }
       },
       timeout: ({ createCronTimeoutWithDeviation }) =>
-        createCronTimeoutWithDeviation('* 14 * * *', convertToMilliseconds({ minutes: 30 })),
+        createCronTimeoutWithDeviation('0 14 * * *', convertToMilliseconds({ minutes: 30 })),
     },
     {
       name: 'Tasks',

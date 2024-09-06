@@ -38,7 +38,7 @@ export const blumMiniApp = defineMiniApp({
         }
       },
       timeout: ({ createCronTimeoutWithDeviation }) =>
-        createCronTimeoutWithDeviation('* 9 * * *', convertToMilliseconds({ minutes: 30 })),
+        createCronTimeoutWithDeviation('0 9 * * *', convertToMilliseconds({ minutes: 30 })),
     },
     {
       name: 'Farming',
@@ -149,7 +149,7 @@ export const blumMiniApp = defineMiniApp({
         }
       },
       timeout: ({ createCronTimeoutWithDeviation }) =>
-        createCronTimeoutWithDeviation('* 10 * * *', convertToMilliseconds({ minutes: 30 })),
+        createCronTimeoutWithDeviation('0 11 * * *', convertToMilliseconds({ minutes: 30 })),
     },
   ],
 })
