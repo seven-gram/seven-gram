@@ -293,7 +293,7 @@ export const hamsterMiniApp = defineMiniApp({
             || upgradeForBuy.price <= 0
             || clickerUser.balanceCoins < upgradeForBuy.price
             || unavaliableSections.includes(upgradeForBuy.section)
-            || (upgradeForBuy.price / upgradeForBuy.profitPerHourDelta) > 4000
+            || (upgradeForBuy.price / upgradeForBuy.profitPerHourDelta) > 10000
           ) {
             continue
           }
