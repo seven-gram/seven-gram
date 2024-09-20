@@ -13,7 +13,7 @@
     "node": "^20"
   },
   "scripts": {
-    "prebuild": "rimraf dist",
+    "prebuild": "rm -rf dist",
     "postbuild": "tsc-alias",
     "build": "tsc",
     "build:watch": "concurrently \"tsc --watch\" \"tsc-alias --watch\"",
