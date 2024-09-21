@@ -29,12 +29,8 @@ export const updateModule = defineModule({
           return
         }
 
-        await pullingMessage?.edit({ text: 'Installing dependencies...' })
-        await $`npm ci`
-        await sleep(convertToMilliseconds({ seconds: 5 }))
-
-        await pullingMessage?.edit({ text: 'Building...' })
-        await $`npm run build`
+        await pullingMessage?.edit({ text: 'Installing dependencies and building...' })
+        await $`npm ci && npm run build`
         await pullingMessage?.edit({ text: 'Update finished! Now need to reload app.' })
         const reloadingMessage = await event.message.reply({ message: 'Reload executed...' })
         await reloadApplication(reloadingMessage)
