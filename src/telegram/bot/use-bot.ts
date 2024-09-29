@@ -21,7 +21,7 @@ async function createBot() {
   await sendMessageToBotFather({ message: name })
 
   await userBot.waitForIncommingMessage({ fromUsers: [TelegramMeta.botFatherId] })
-  const username = `seven_gram_${faker.string.nanoid(5)}_bot`
+  const username = `seven_gram_${faker.string.alphanumeric(5)}_bot`
   await sleep(2000)
   await sendMessageToBotFather({ message: username })
   const messageEvent = await userBot.waitForIncommingMessage({ fromUsers: [TelegramMeta.botFatherId] })
