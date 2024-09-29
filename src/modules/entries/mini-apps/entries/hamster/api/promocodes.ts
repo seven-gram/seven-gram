@@ -1,6 +1,6 @@
 import type { AxiosInstance } from 'axios'
-import axios from 'axios'
 import type { HamsterTypes } from '../index.js'
+import axios from 'axios'
 
 export interface GetPromoCodesResponse {
   promos: HamsterTypes.Promo[]

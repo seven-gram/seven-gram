@@ -1,8 +1,8 @@
-import { isEqual } from 'lodash-es'
 import type { TelegramClient } from 'telegram'
-import { Api } from 'telegram'
 import type { EntityLike } from 'telegram/define.js'
 import type { NewMessageEvent } from 'telegram/events/NewMessage.js'
+import { isEqual } from 'lodash-es'
+import { Api } from 'telegram'
 import { NewMessage } from 'telegram/events/NewMessage.js'
 
 export async function waitForIncommingMessage(client: TelegramClient, options: Pick<NewMessage, 'fromUsers' | 'pattern'>) {

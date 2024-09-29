@@ -1,6 +1,6 @@
+import type { Api } from 'telegram'
 import { AppMeta } from 'src/meta.js'
 import { useBot, useUserBot } from 'src/telegram/index.js'
-import type { Api } from 'telegram'
 import { defineModule } from '../../helpers/define.js'
 import { reloadApplication } from './helpers/reload.js'
 

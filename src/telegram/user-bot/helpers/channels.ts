@@ -1,11 +1,11 @@
-import { useConfigDatabase } from 'src/config-database.js'
 import type { TelegramClient } from 'telegram'
-import { Api } from 'telegram'
-import type { SetRequired } from 'type-fest'
-
 import type { EntityLike } from 'telegram/define.js'
+import type { SetRequired } from 'type-fest'
+import { useConfigDatabase } from 'src/config-database.js'
+
 import { useBot } from 'src/telegram/bot/use-bot.js'
 import { TelegramHelpers } from 'src/telegram/index.js'
+import { Api } from 'telegram'
 
 export async function getOrCreateChannel(
   client: TelegramClient,

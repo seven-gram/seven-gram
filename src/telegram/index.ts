@@ -1,6 +1,6 @@
 export * from './bot/index.js'
-export * from './user-bot/index.js'
+export type * as TelegramEnums from './enums.js'
 export * as TelegramHelpers from './helpers/index.js'
 export { TelegramMeta } from './meta.js'
 export * as TelegramStatic from './static.js'
-export type * as TelegramEnums from './enums.js'
+export * from './user-bot/index.js'

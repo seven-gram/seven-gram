@@ -1,5 +1,5 @@
-import { TelegramHelpers, useUserBot } from 'src/telegram/index.js'
 import type { AxiosInstance } from 'axios'
+import { TelegramHelpers, useUserBot } from 'src/telegram/index.js'
 import { HamsterStatic } from '../static.js'
 
 interface AuthByTelegramWebapp {

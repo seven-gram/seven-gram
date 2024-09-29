@@ -1,10 +1,10 @@
 import { randomInt } from 'node:crypto'
+import { AxiosError } from 'axios'
 import { convertToMilliseconds, sleep } from 'src/shared.js'
 import { doFloodProtect } from 'src/telegram/helpers/index.js'
-import { AxiosError } from 'axios'
-import { defineMiniApp } from '../../helpers/define.js'
 import { MiniAppName } from '../../enums.js'
 import { createMiniAppConfigDatabase } from '../../helpers/config-database.js'
+import { defineMiniApp } from '../../helpers/define.js'
 import { BlumApi } from './api.js'
 import { BlumStatic } from './static.js'
 
@@ -136,9 +136,9 @@ export const blumMiniApp = defineMiniApp({
             await api.claimGame(gameId, randomPointsCount)
             balance = await api.getBalance()
             await logger.success(
-            `Game session ${gameId} done.`
-            + `\nTotal points: ${balance.availableBalance} (+${randomPointsCount})`
-            + `\nPasses left: ${balance.playPasses}`,
+              `Game session ${gameId} done.`
+              + `\nTotal points: ${balance.availableBalance} (+${randomPointsCount})`
+              + `\nPasses left: ${balance.playPasses}`,
             )
             await sleep(randomInt(
               convertToMilliseconds({ seconds: 10 }),
@@ -153,9 +153,9 @@ export const blumMiniApp = defineMiniApp({
 
             if (error instanceof AxiosError) {
               await logger.error(
-              `An error occurs while executing game iteration with index ${i + 1}`
-              + `\n\`\`\`Message: ${error.message}\`\`\``
-              + `\nSkipping game...`,
+                `An error occurs while executing game iteration with index ${i + 1}`
+                + `\n\`\`\`Message: ${error.message}\`\`\``
+                + `\nSkipping game...`,
               )
               await sleep(convertToMilliseconds({ seconds: 15 }))
             }

@@ -1,9 +1,9 @@
+import type { OmitFirstArg } from 'src/shared.js'
+import { memoize } from 'lodash-es'
+import prompts from 'prompts'
+import { useConfigDatabase } from 'src/config-database.js'
 import { TelegramClient } from 'telegram'
 import { StringSession } from 'telegram/sessions/index.js'
-import prompts from 'prompts'
-import { memoize } from 'lodash-es'
-import { useConfigDatabase } from 'src/config-database.js'
-import type { OmitFirstArg } from 'src/shared.js'
 import { TelegramHelpers, TelegramStatic, UserBotHelpers } from '../index.js'
 
 async function initUserBot() {

@@ -1,7 +1,7 @@
-import { createHash } from 'node:crypto'
-import { sleep } from 'src/shared.js'
-import { faker } from '@faker-js/faker'
 import type BigInt from 'big-integer'
+import { createHash } from 'node:crypto'
+import { faker } from '@faker-js/faker'
+import { sleep } from 'src/shared.js'
 import { TelegramStatic } from '../index.js'
 
 export * from '../user-bot/helpers/web-app-data.js'

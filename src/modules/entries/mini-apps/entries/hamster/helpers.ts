@@ -1,11 +1,11 @@
+import type { DailyKeysMiniGame } from './api/minigame.js'
+import type { HamsterTypes } from './index.js'
 import { Buffer } from 'node:buffer'
 import * as crypto from 'node:crypto'
 import { faker } from '@faker-js/faker'
+import retry from 'async-retry'
 import axios from 'axios'
 import { sleep } from 'src/shared.js'
-import retry from 'async-retry'
-import type { DailyKeysMiniGame } from './api/minigame.js'
-import type { HamsterTypes } from './index.js'
 
 type CreateGetMiniGameCipherFactoryResult<Optional> = Optional extends false ? {
   getMiniGameCipher: (miniGame: DailyKeysMiniGame, userId: string) => string
@@ -69,7 +69,8 @@ export function decodeDailyCipher(cipher: string): string {
 
 export function generateClientId(): string {
   const currentTime = Date.now()
-  // eslint-disable-next-line ts/no-loss-of-precision
+
+  // eslint-disable-next-line no-loss-of-precision
   const randomNumber = `34${faker.helpers.rangeToNumber({ min: 10000000000000000, max: 99999999999999999 })}`
 
   return `${currentTime}-${randomNumber}`

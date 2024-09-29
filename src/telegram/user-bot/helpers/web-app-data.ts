@@ -1,5 +1,5 @@
-import type { EntityLike } from 'telegram/define.js'
 import type { TelegramClient } from 'telegram'
+import type { EntityLike } from 'telegram/define.js'
 import { Api } from 'telegram'
 
 export async function getWebAppData(client: TelegramClient, entity: EntityLike, url: string): Promise<string> {

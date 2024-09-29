@@ -8,5 +8,6 @@ export default antfu({
     'no-console': 'off',
     'unused-imports/no-unused-imports': 'error',
     'unused-imports/no-unused-vars': 'warn',
+    'antfu/no-top-level-await': 'off',
   },
 })

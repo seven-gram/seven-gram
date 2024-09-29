@@ -1,6 +1,6 @@
 import type { TelegramClient } from 'telegram'
-import { TelegramStatic } from 'src/telegram/index.js'
 import type { EntitiesLike } from 'telegram/define.js'
+import { TelegramStatic } from 'src/telegram/index.js'
 import { UserBotHelpers } from '../index.js'
 
 export async function addEntitiesToSpecialFolder(client: TelegramClient, entities: EntitiesLike) {

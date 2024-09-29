@@ -1,5 +1,5 @@
-import { useBot } from 'src/telegram/index.js'
 import type { Api } from 'telegram'
+import { useBot } from 'src/telegram/index.js'
 import { $ } from 'zx'
 import { reloadModule } from '../index.js'
 

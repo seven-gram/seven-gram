@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync } from 'node:fs'
-import { JSONFileSyncPreset } from 'lowdb/node'
 import { memoize, merge } from 'lodash-es'
+import { JSONFileSyncPreset } from 'lowdb/node'
 
 interface Database {
   settings: {

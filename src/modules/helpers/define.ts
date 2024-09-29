@@ -1,8 +1,8 @@
+import type { ConfigOptions, DefineModuleOptions, Module, ModuleConfig } from 'src/modules/types.js'
+import type { AnyRecord, NeverIfNullable } from 'src/shared.js'
 import { existsSync, mkdirSync } from 'node:fs'
 import { memoize } from 'lodash-es'
 import { JSONFileSyncPreset } from 'lowdb/node'
-import type { ConfigOptions, DefineModuleOptions, Module, ModuleConfig } from 'src/modules/types.js'
-import type { AnyRecord, NeverIfNullable } from 'src/shared.js'
 
 export function defineModule<
   GDatabase extends AnyRecord | undefined,

@@ -1,15 +1,15 @@
 import { randomInt } from 'node:crypto'
 import { faker } from '@faker-js/faker'
 import { convertToMilliseconds, formatCoins } from 'src/shared.js'
+import { doFloodProtect } from 'src/telegram/helpers/index.js'
 import { TelegramHelpers } from 'src/telegram/index.js'
 import { sleep } from 'zx'
-import { doFloodProtect } from 'src/telegram/helpers/index.js'
-import { defineMiniApp } from '../../helpers/define.js'
 import { MiniAppName } from '../../enums.js'
 import { createMiniAppConfigDatabase } from '../../helpers/config-database.js'
-import { HamsterStatic } from './static.js'
+import { defineMiniApp } from '../../helpers/define.js'
 import { HamsterApi } from './api/index.js'
 import * as HamsterHelpers from './helpers.js'
+import { HamsterStatic } from './static.js'
 import * as HamsterTypes from './types/index.js'
 
 export { HamsterStatic } from './static.js'
@@ -87,8 +87,8 @@ export const hamsterMiniApp = defineMiniApp({
 
         if (dailyKeysMiniGames.isClaimed) {
           await logger.success(
-          `Mini game ${game.id} is succesfully claimed`
-          + `\nTotal keys: ${newTotalKeys} (+${bonus})`,
+            `Mini game ${game.id} is succesfully claimed`
+            + `\nTotal keys: ${newTotalKeys} (+${bonus})`,
           )
         }
         else {
@@ -120,7 +120,7 @@ export const hamsterMiniApp = defineMiniApp({
 
         let currentGame = game
         const gameIterations = randomInt(TILES_ITERATIONS_PER_EXECUTION[0], TILES_ITERATIONS_PER_EXECUTION[1])
-        for (const _ of Array.from(Array(gameIterations).keys())) {
+        for (const _ of Array.from(Array.from({ length: gameIterations }).keys())) {
           if (currentGame.isClaimed) {
             break
           }
@@ -144,8 +144,8 @@ export const hamsterMiniApp = defineMiniApp({
           currentGame = dailyKeysMiniGames
 
           await logger.success(
-          `Part of the ${game.id} mini game prize was succesfully recieved`
-          + `\nTotal coins: ${formatCoins(newClickerUser.totalCoins)} (+${formatCoins(bonus)})`,
+            `Part of the ${game.id} mini game prize was succesfully recieved`
+            + `\nTotal coins: ${formatCoins(newClickerUser.totalCoins)} (+${formatCoins(bonus)})`,
           )
           await doFloodProtect()
         }

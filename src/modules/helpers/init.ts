@@ -1,11 +1,11 @@
+import type { CommandEvent } from '../types.js'
+import { escapeRegExp } from 'lodash-es'
+import { useConfig } from 'src/config.js'
+import { systemLogger } from 'src/logger.js'
 import { useUserBot } from 'src/telegram/index.js'
 import { NewMessage } from 'telegram/events/NewMessage.js'
-import { systemLogger } from 'src/logger.js'
-import { useConfig } from 'src/config.js'
-import { escapeRegExp } from 'lodash-es'
-import type { CommandEvent } from '../types.js'
-import { EventType } from '../types.js'
 import { modules } from '../entries/index.js'
+import { EventType } from '../types.js'
 
 export async function initModules() {
   const config = useConfig()

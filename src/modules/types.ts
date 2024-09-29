@@ -1,6 +1,6 @@
-import type { NewMessageEvent } from 'telegram/events/NewMessage.js'
 import type { LowSync } from 'lowdb'
 import type { AnyRecord, NeverIfNullable } from 'src/shared.js'
+import type { NewMessageEvent } from 'telegram/events/NewMessage.js'
 
 export enum EventType {
   COMMAND = 'command',

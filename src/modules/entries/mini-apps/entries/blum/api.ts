@@ -1,6 +1,6 @@
 import type { AxiosInstance } from 'axios'
-import { useUserBot } from 'src/telegram/index.js'
 import { doFloodProtect } from 'src/telegram/helpers/index.js'
+import { useUserBot } from 'src/telegram/index.js'
 import { defineMiniAppApi } from '../../helpers/define.js'
 import { BlumStatic } from './static.js'
 

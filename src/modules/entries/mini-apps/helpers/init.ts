@@ -1,12 +1,12 @@
-import { randomInt } from 'node:crypto'
 import type { AxiosInstance } from 'axios'
-import axios, { AxiosError } from 'axios'
 import type { AnyFn } from 'src/shared.js'
-import { createCronTimeoutWithDeviation, sleep } from 'src/shared.js'
-import { useUserBot } from 'src/telegram/index.js'
-import { miniApps } from 'src/modules/entries/mini-apps/index.js'
+import { randomInt } from 'node:crypto'
+import axios, { AxiosError } from 'axios'
 import { CronTime } from 'cron'
+import { miniApps } from 'src/modules/entries/mini-apps/index.js'
+import { createCronTimeoutWithDeviation, sleep } from 'src/shared.js'
 import { doFloodProtect } from 'src/telegram/helpers/index.js'
+import { useUserBot } from 'src/telegram/index.js'
 
 function createCallbacksQueue() {
   const callbacksQueueEntries: [AnyFn, AnyFn][] = [];

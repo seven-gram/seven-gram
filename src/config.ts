@@ -1,8 +1,8 @@
+import type { PackageJson } from 'type-fest'
 import { readFileSync } from 'node:fs'
 import { memoize } from 'lodash-es'
-import type { PackageJson } from 'type-fest'
-import { useEnv } from './env.js'
 import { useConfigDatabase } from './config-database.js'
+import { useEnv } from './env.js'
 
 export const useConfig = memoize(() => {
   const { NODE_ENV } = useEnv()

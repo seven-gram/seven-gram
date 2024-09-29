@@ -1,6 +1,6 @@
+import type { TelegramClient } from 'telegram'
 import prompts from 'prompts'
 import { systemLogger } from 'src/logger.js'
-import type { TelegramClient } from 'telegram'
 
 export async function startClient(client: TelegramClient): Promise<void> {
   return client.start({
