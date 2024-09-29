@@ -18,7 +18,7 @@
     "build": "tsc",
     "build:watch": "concurrently \"tsc --watch\" \"tsc-alias --watch\"",
     "start": "NODE_NO_WARNINGS=1 node dist/main.js",
-    "pm2:start": "pm2 start ecosystem.config.cjs --env production",
+    "pm2:start": "pm2 start ecosystem.config.cjs --env production && pm2 attach $(node -e \"console.log('$(pm2 id seven-gram)'[2])\")",
     "pm2:reload": "pm2 reload ecosystem.config.cjs --env production",
     "lint": "eslint",
     "lint:fix": "eslint --fix"
