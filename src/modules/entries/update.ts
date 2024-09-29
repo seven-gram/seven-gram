@@ -1,3 +1,4 @@
+import { useConfig } from 'src/config.js'
 import { AppMeta } from 'src/meta.js'
 import { $ } from 'zx'
 import { defineModule } from '../helpers/define.js'
@@ -36,8 +37,12 @@ export const updateModule = defineModule({
         await pullingMessage?.edit({ text: 'Building...' })
         await $`npm run build`
         await pullingMessage?.edit({ text: 'Update finished! Now need to reload app.' })
-        const reloadingMessage = await event.message.reply({ message: 'Reload executed...' })
-        await reloadApplication(reloadingMessage)
+
+        const config = useConfig()
+        if (config.isDaemonMode) {
+          const reloadingMessage = await event.message.reply({ message: 'Reload executed...' })
+          await reloadApplication(reloadingMessage)
+        }
       },
     },
   },

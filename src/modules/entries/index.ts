@@ -1,3 +1,5 @@
+import type { Module } from '../types.js'
+import { useConfig } from 'src/config.js'
 import { defineModules } from '../helpers/define.js'
 import { helpModule } from './help.js'
 import { miniAppsModule } from './mini-apps/index.js'
@@ -8,10 +10,17 @@ import { updateModule } from './update.js'
 export { reloadModule as restartModule } from './reload/index.js'
 export { updateModule } from './update.js'
 
-export const modules = defineModules([
+const config = useConfig()
+
+const modulesArray: Module[] = [
   pingModule,
   updateModule,
-  reloadModule,
   helpModule,
   miniAppsModule,
-])
+]
+
+if (config.isDaemonMode) {
+  modulesArray.push(reloadModule)
+}
+
+export const modules = defineModules(modulesArray)

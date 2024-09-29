@@ -9,6 +9,7 @@ module.exports = {
     ],
     env: {
       NODE_NO_WARNINGS: 1,
+      DAEMON_MODE: 1,
     },
     env_production: {
       NODE_ENV: 'production',
