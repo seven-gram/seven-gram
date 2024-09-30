@@ -20,22 +20,23 @@ export const blumMiniApp = defineMiniApp({
 
       return axiosClient
     },
-    lifetime: convertToMilliseconds({ hours: 24 }),
+  },
+  async onResponseRejected(error, axiosClient, createAxios) {
+    if (error.response?.status === 401) {
+      const cleanAxiosClient = createAxios({ headers: BlumStatic.DEFAULT_HEADERS })
+      const { authToken } = await BlumApi.getToken(cleanAxiosClient)
+      axiosClient.defaults.headers.common.Authorization = `Bearer ${authToken}`
+    }
+    else {
+      return error
+    }
   },
   callbackEntities: [
     {
       name: 'Daily Reward',
       async callback({ logger, api }) {
-        try {
-          await api.claimDailyReward()
-          await logger.success(`Daily reward was succesfully claimed`)
-        }
-        catch (error) {
-          if (error instanceof AxiosError) {
-            await logger.info(`Can not claim daily reward. Maybe reward was claimed yet`)
-            throw error
-          }
-        }
+        await api.claimDailyReward()
+        await logger.success(`Daily reward was succesfully claimed`)
       },
       timeout: ({ createCronTimeoutWithDeviation }) =>
         createCronTimeoutWithDeviation('0 9 * * *', convertToMilliseconds({ minutes: 30 })),

@@ -64,19 +64,61 @@ export async function initMiniApps() {
 
         for (const [callbackEntity, callbackEntityIndex] of miniApp.callbackEntities.map((value, index) => [value, index] as const)) {
           let axiosClient: AxiosInstance | undefined
-          const useAxiosClient = async (needToforceRelogin = false): Promise<AxiosInstance> => {
+          const useAxiosClient = async (): Promise<AxiosInstance> => {
             const headersWrapper = session?.headersWrapper
-            const isHeadersExpired = !headersWrapper || new Date(headersWrapper.expirationDate) <= new Date()
 
-            if (needToforceRelogin || isHeadersExpired) {
+            if (!headersWrapper) {
               axiosClient = await miniApp.login.callback(axios.create)
-              configDatabase.updateSessionLoginHeaders(userBotId, axiosClient.defaults.headers, miniApp.login.lifetime)
+              configDatabase.updateSessionLoginHeaders(userBotId, axiosClient.defaults.headers)
             }
             else if (!axiosClient) {
               axiosClient = axios.create({
                 headers: headersWrapper.headers,
               })
-              configDatabase.updateSessionLoginHeaders(userBotId, axiosClient.defaults.headers, miniApp.login.lifetime)
+              configDatabase.updateSessionLoginHeaders(userBotId, axiosClient.defaults.headers)
+            }
+
+            axiosClient.interceptors.request.use(
+              (request) => {
+                const accessToken = axiosClient?.defaults.headers.common.Authorization
+                if (accessToken) {
+                  request.headers.Authorization = accessToken
+                }
+                return request
+              },
+              error => Promise.reject(error),
+            )
+
+            const onResponseRejected = miniApp.onResponseRejected
+            if (onResponseRejected) {
+              axiosClient.interceptors.response.use(
+                response => response,
+                async (error) => {
+                  if (!(error instanceof AxiosError))
+                    return Promise.reject(error)
+
+                  const originalRequest = error.config as typeof error.config & { _retry: boolean | undefined }
+
+                  if (!axiosClient || !originalRequest || originalRequest._retry)
+                    return Promise.reject(error)
+
+                  try {
+                    const onResponseRejectedResult = await onResponseRejected(error, axiosClient, axios.create)
+
+                    configDatabase.updateSessionLoginHeaders(userBotId, axiosClient.defaults.headers)
+
+                    if (onResponseRejectedResult instanceof Error) {
+                      return Promise.reject(error)
+                    }
+
+                    originalRequest._retry = true
+                    return axiosClient.request(originalRequest)
+                  }
+                  catch (error) {
+                    return Promise.reject(error)
+                  }
+                },
+              )
             }
 
             return axiosClient
@@ -96,11 +138,11 @@ export async function initMiniApps() {
           })
 
           const timeoutSheduledHandler = async () => {
-            async function tryExecuteCallback(needToforceRelogin = false) {
+            async function tryExecuteCallback() {
               let callbackResult
 
               if (callbacksQueue.has(callbackEntity.callback) === false) {
-                const axiosClient = await useAxiosClient(needToforceRelogin)
+                const axiosClient = await useAxiosClient()
                 callbackResult = await callbacksQueue.addCallback(
                   callbackEntity.callback,
                   () => callbackEntity.callback({
@@ -123,33 +165,17 @@ export async function initMiniApps() {
               callbackResult = await tryExecuteCallback()
             }
             catch (error: any) {
-              const isUnauthorized = [error.status, error?.toJSON()?.status].includes(401)
-
-              if (isUnauthorized) {
-                try {
-                  callbackResult = await tryExecuteCallback(true)
-                }
-                catch (error) {
-                  await handleError(error)
-                }
+              if (error instanceof AxiosError) {
+                await miniApp.public.logger.error({
+                  plainMessage: `Module |${callbackEntity.name}| was executed with error.\nMessage: ${JSON.stringify(error.response?.data ?? error.message)}`,
+                  markdownMessage: `Module |${callbackEntity.name}| was executed with error.\`\`\`Message: ${JSON.stringify(error.response?.data ?? error.message)}\`\`\``,
+                })
               }
-              else {
-                await handleError(error)
-              }
-
-              async function handleError(error: unknown) {
-                if (error instanceof AxiosError) {
-                  await miniApp.public.logger.error({
-                    plainMessage: `Module |${callbackEntity.name}| was executed with error.\nMessage: ${JSON.stringify(error.response?.data ?? error.message)}`,
-                    markdownMessage: `Module |${callbackEntity.name}| was executed with error.\`\`\`Message: ${JSON.stringify(error.response?.data ?? error.message)}\`\`\``,
-                  })
-                }
-                else if (error instanceof Error) {
-                  await miniApp.public.logger.error({
-                    plainMessage: `An unhandled error occurs.\nMessage: ${error.message}`,
-                    markdownMessage: `An unhandled error occurs.\`\`\`Message: ${error.message}\`\`\``,
-                  })
-                }
+              else if (error instanceof Error) {
+                await miniApp.public.logger.error({
+                  plainMessage: `An unhandled error occurs.\nMessage: ${error.message}`,
+                  markdownMessage: `An unhandled error occurs.\`\`\`Message: ${error.message}\`\`\``,
+                })
               }
             }
 

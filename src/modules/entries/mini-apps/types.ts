@@ -1,4 +1,4 @@
-import type { AxiosInstance, HeadersDefaults } from 'axios'
+import type { AxiosError, AxiosInstance, HeadersDefaults } from 'axios'
 import type axios from 'axios'
 import type { CronJobParams, CronTime } from 'cron'
 import type { LowSync } from 'lowdb'
@@ -20,7 +20,6 @@ export interface MiniAppConfig {
   sessions: {
     [Id in number]?: {
       headersWrapper?: {
-        expirationDate: string
         headers: HeadersDefaults
       }
       callbackEntities?: {
@@ -38,7 +37,7 @@ export interface CallbackEntityConfigHashOptions {
 
 export interface MiniAppConfigDatabase {
   database: LowSync<MiniAppConfig>
-  updateSessionLoginHeaders: (sessionId: number, headers: HeadersDefaults, lifetime: number) => void
+  updateSessionLoginHeaders: (sessionId: number, headers: HeadersDefaults) => void
   updateCallbackEntity: (
     sessionId: number,
     entityOptions: CallbackEntityConfigHashOptions,
@@ -76,8 +75,12 @@ export interface DefineMiniAppOptions<Name, Api> {
   configDatabase: MiniAppConfigDatabase
   login: {
     callback: (createAxios: typeof axios.create) => Promise<AxiosInstance>
-    lifetime: number
   }
+  onResponseRejected?: (
+    error: AxiosError,
+    axiosClient: AxiosInstance,
+    createAxios: typeof axios.create
+  ) => MaybePromiseLike<AxiosError | null | undefined>
   callbackEntities: MiniAppCallbackEntity<Name, Api>[]
 }
 

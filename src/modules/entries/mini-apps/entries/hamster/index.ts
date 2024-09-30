@@ -27,7 +27,16 @@ export const hamsterMiniApp = defineMiniApp({
 
       return axiosClient
     },
-    lifetime: convertToMilliseconds({ hours: 24 }),
+  },
+  async onResponseRejected(error, axiosClient, createAxios) {
+    if (error.response?.status === 401) {
+      const cleanAxiosClient = createAxios({ headers: HamsterStatic.DEFAULT_HEADERS })
+      const { authToken } = await HamsterApi.authByTelegramWebapp(cleanAxiosClient)
+      axiosClient.defaults.headers.common.Authorization = `Bearer ${authToken}`
+    }
+    else {
+      return error
+    }
   },
   callbackEntities: [
     {

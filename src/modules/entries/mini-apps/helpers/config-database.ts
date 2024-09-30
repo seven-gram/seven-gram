@@ -18,11 +18,9 @@ export function createMiniAppConfigDatabase(name: MiniAppName) {
     const updateSessionLoginHeaders: MiniAppConfigDatabase['updateSessionLoginHeaders'] = (
       sessionId,
       headers,
-      lifetime,
     ) => {
       database.data.sessions[sessionId] ??= {}
       database.data.sessions[sessionId].headersWrapper = {
-        expirationDate: new Date(Date.now() + lifetime).toJSON(),
         headers,
       }
       database.write()
