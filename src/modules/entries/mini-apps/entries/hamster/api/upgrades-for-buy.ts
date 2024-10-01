@@ -3,8 +3,6 @@ import type { HamsterTypes } from '../index.js'
 
 interface GetUpgradesForBuyResponse {
   upgradesForBuy: HamsterTypes.UpgradeForBuy[]
-  sections: HamsterTypes.SectionElement[]
-  dailyCombo: HamsterTypes.DailyCombo
 }
 
 export async function getUpgradesForBuy(axiosClient: AxiosInstance): Promise<GetUpgradesForBuyResponse> {
@@ -19,7 +17,6 @@ export async function getUpgradesForBuy(axiosClient: AxiosInstance): Promise<Get
 interface BuyUpgradeResponse {
   upgradesForBuy: HamsterTypes.UpgradeForBuy[]
   interludeUser: HamsterTypes.InterludeUser
-  dailyCombo: HamsterTypes.DailyCombo
 }
 
 export async function buyUpgrade(axiosClient: AxiosInstance, upgradeId: string): Promise<BuyUpgradeResponse> {

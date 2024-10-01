@@ -248,9 +248,8 @@ export const hamsterMiniApp = defineMiniApp({
     {
       name: 'Upgrades',
       async callback({ logger, api }) {
-        const { sections, upgradesForBuy } = await api.getUpgradesForBuy()
+        const { upgradesForBuy } = await api.getUpgradesForBuy()
         let { interludeUser } = await api.getInterludeUser()
-        const unavaliableSections = sections.filter(section => !section.isAvailable).map(section => section.section)
 
         const sortedUpgradesForBuy = upgradesForBuy
           .toSorted((a, b) => b.profitPerHourDelta - a.profitPerHourDelta)
@@ -264,7 +263,6 @@ export const hamsterMiniApp = defineMiniApp({
             || upgradeForBuy.isExpired
             || upgradeForBuy.price <= 0
             || interludeUser.balanceDiamonds < upgradeForBuy.price
-            || unavaliableSections.includes(upgradeForBuy.section)
             || (upgradeForBuy.price / upgradeForBuy.profitPerHourDelta) > 10000
           ) {
             continue
