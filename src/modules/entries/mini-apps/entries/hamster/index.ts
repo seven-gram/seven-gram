@@ -40,17 +40,12 @@ export const hamsterMiniApp = defineMiniApp({
   },
   callbackEntities: [
     {
-      name: 'Tap',
-      async callback({ logger, api }) {
-        let { clickerUser: { availableTaps, earnPerTap } } = await api.getClickerUser()
-        const maxTapsCount = Math.floor(availableTaps / earnPerTap)
-        const tapsCount = faker.helpers.rangeToNumber({
-          min: maxTapsCount - 10,
-          max: maxTapsCount - 1,
-        })
-        await api.tap(availableTaps, tapsCount)
-        availableTaps = availableTaps - tapsCount * earnPerTap
-        await logger.info(`Tapped: ${tapsCount} times\nCurrent energy is ${availableTaps}`)
+      name: 'Anti AFK',
+      async callback({ api }) {
+        await api.getAccountInfo()
+        await api.getInterludeUser()
+        await api.getPromos()
+        await api.getUpgradesForBuy()
       },
       timeout: () => faker.helpers.rangeToNumber({
         min: convertToMilliseconds({ minutes: 50 }),
@@ -83,7 +78,7 @@ export const hamsterMiniApp = defineMiniApp({
           }
         }
 
-        const { clickerUser } = await api.getClickerUser()
+        const { interludeUser } = await api.getInterludeUser()
         await api.startDailyKeysMinigame(game.id)
         const gameSleepTime = randomInt(15_000, 25_000)
         logger.info(
@@ -91,8 +86,8 @@ export const hamsterMiniApp = defineMiniApp({
           + `\nSleep ${gameSleepTime / 1000} seconds`,
         )
         await sleep(gameSleepTime)
-        const cipher = HamsterHelpers.createGetMiniGameCipherFactory().getMiniGameCipher(game, clickerUser.id)
-        const { dailyKeysMiniGames, clickerUser: { totalKeys: newTotalKeys }, bonus } = await api.claimDailyKeysMinigame(cipher, game.id)
+        const cipher = HamsterHelpers.createGetMiniGameCipherFactory().getMiniGameCipher(game, interludeUser.id)
+        const { dailyKeysMiniGames, interludeUser: { totalKeys: newTotalKeys }, bonus } = await api.claimDailyKeysMinigame(cipher, game.id)
 
         if (dailyKeysMiniGames.isClaimed) {
           await logger.success(
@@ -138,7 +133,7 @@ export const hamsterMiniApp = defineMiniApp({
             ? currentGame.remainPoints
             : randomInt(TILES_POINTS_PER_GAME[0], TILES_POINTS_PER_GAME[1])
 
-          const { clickerUser } = await api.getClickerUser()
+          const { interludeUser } = await api.getInterludeUser()
           await api.startDailyKeysMinigame(game.id)
           const { timeToFarmPoints, getMiniGameCipher } = HamsterHelpers.createGetMiniGameCipherFactory(pointsToFarm)
           logger.info(
@@ -148,13 +143,13 @@ export const hamsterMiniApp = defineMiniApp({
             + `\nSleep: ${timeToFarmPoints / 1000} seconds`,
           )
           await sleep(timeToFarmPoints)
-          const cipher = getMiniGameCipher(game, clickerUser.id)
-          const { dailyKeysMiniGames, clickerUser: newClickerUser, bonus } = await api.claimDailyKeysMinigame(cipher, game.id)
+          const cipher = getMiniGameCipher(game, interludeUser.id)
+          const { dailyKeysMiniGames, interludeUser: newInterludeUser, bonus } = await api.claimDailyKeysMinigame(cipher, game.id)
           currentGame = dailyKeysMiniGames
 
           await logger.success(
             `Part of the ${game.id} mini game prize was succesfully recieved`
-            + `\nTotal coins: ${formatCoins(newClickerUser.totalCoins)} (+${formatCoins(bonus)})`,
+            + `\nTotal coins: ${formatCoins(newInterludeUser.totalDiamonds)} (+${formatCoins(bonus)})`,
           )
           await doFloodProtect()
         }
@@ -170,26 +165,6 @@ export const hamsterMiniApp = defineMiniApp({
       },
       timeout: ({ createCronTimeoutWithDeviation }) =>
         createCronTimeoutWithDeviation('0 12 * * *', convertToMilliseconds({ minutes: 30 })),
-    },
-    {
-      name: 'Daily Cipher',
-      async callback({ logger, api }) {
-        const { dailyCipher: { cipher, isClaimed } } = await api.getConfig()
-
-        if (isClaimed) {
-          await logger.info(`Daily cipher is already claimed`)
-          return
-        }
-
-        const decodedCipher = HamsterHelpers.decodeDailyCipher(cipher)
-        const { dailyCipher: { bonusCoins } } = await api.claimDailyCipher(decodedCipher)
-        await logger.success(
-          `Successfully claim daily cipher: ${decodedCipher}`
-          + `\nBonus: ${bonusCoins}`,
-        )
-      },
-      timeout: ({ createCronTimeoutWithDeviation }) =>
-        createCronTimeoutWithDeviation('0 13 * * *', convertToMilliseconds({ minutes: 30 })),
     },
     {
       name: 'Playground',
@@ -254,28 +229,16 @@ export const hamsterMiniApp = defineMiniApp({
           if (task.isCompleted) {
             continue
           }
-          else if (
-            task.rewardDelaySeconds
-            && task.toggle?.enableAt
-            && ((new Date().valueOf() - new Date(task.toggle.enableAt).valueOf()) / 1000) < task.rewardDelaySeconds
-          ) {
-            // TODO: plan module execution to nearest time after reward delay seconds end
-            continue
-          }
 
           async function onTaskCompletion() {
             const { task: newTask } = await api.checkTask(task.id)
             if (newTask.isCompleted) {
-              await logger.info(`Task _${newTask.id}_ succesfully completed.\nBonus coins: ${newTask.rewardCoins}`)
+              await logger.info(`Task _${newTask.id}_ succesfully completed.`)
             }
             await TelegramHelpers.doFloodProtect()
           }
 
-          if (task.id.includes('youtube') && (task.type === 'WithLink' || task.type === 'WithLocaleLink')) {
-            await onTaskCompletion()
-          }
-
-          else if (task.type === 'StreakDay' && task.id === 'streak_days') {
+          if (task.id.includes('youtube')) {
             await onTaskCompletion()
           }
         }
@@ -283,10 +246,10 @@ export const hamsterMiniApp = defineMiniApp({
       timeout: ({ randomInt }) => randomInt(convertToMilliseconds({ hours: 5 }), convertToMilliseconds({ hours: 6 })),
     },
     {
-      name: 'Mining',
+      name: 'Upgrades',
       async callback({ logger, api }) {
         const { sections, upgradesForBuy } = await api.getUpgradesForBuy()
-        let { clickerUser } = await api.getClickerUser()
+        let { interludeUser } = await api.getInterludeUser()
         const unavaliableSections = sections.filter(section => !section.isAvailable).map(section => section.section)
 
         const sortedUpgradesForBuy = upgradesForBuy
@@ -300,7 +263,7 @@ export const hamsterMiniApp = defineMiniApp({
             || (upgradeForBuy.maxLevel && upgradeForBuy.level >= upgradeForBuy.maxLevel)
             || upgradeForBuy.isExpired
             || upgradeForBuy.price <= 0
-            || clickerUser.balanceCoins < upgradeForBuy.price
+            || interludeUser.balanceDiamonds < upgradeForBuy.price
             || unavaliableSections.includes(upgradeForBuy.section)
             || (upgradeForBuy.price / upgradeForBuy.profitPerHourDelta) > 10000
           ) {
@@ -308,8 +271,8 @@ export const hamsterMiniApp = defineMiniApp({
           }
 
           async function buyUpgrade() {
-            const { upgradesForBuy, clickerUser: newClickerUser } = await api.buyUpgrade(upgradeForBuy.id)
-            clickerUser = newClickerUser
+            const { upgradesForBuy, interludeUser: newInterludeUser } = await api.buyUpgrade(upgradeForBuy.id)
+            interludeUser = newInterludeUser
             const updatedUpgradeForBuy = upgradesForBuy.find(upgrade => upgrade.id === upgradeForBuy.id)!
             await logger.info(`_${updatedUpgradeForBuy.id}_ card was bought succesfully.\nLevel: ${updatedUpgradeForBuy.level}\n`)
             await TelegramHelpers.doFloodProtect()

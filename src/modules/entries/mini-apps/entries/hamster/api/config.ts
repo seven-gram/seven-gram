@@ -13,7 +13,7 @@ interface GetConfigResponse {
 
 export async function getConfig(axiosClient: AxiosInstance): Promise<GetConfigResponse> {
   const response = await axiosClient.post<GetConfigResponse>(
-    'https://api.hamsterkombatgame.io/clicker/config',
+    'https://api.hamsterkombatgame.io/interlude/config',
     null,
   )
 

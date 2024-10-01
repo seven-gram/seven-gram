@@ -1,7 +1,7 @@
-export interface ClickerUser {
+export interface InterludeUser {
   id: string
-  totalCoins: number
-  balanceCoins: number
+  totalDiamonds: number
+  balanceDiamonds: number
   level: number
   availableTaps: number
   lastSyncUpdate: number
@@ -85,7 +85,6 @@ interface Friend {
   supportsInlineQueries: null
   photos: Array<Photo[]>
   username: string
-  welcomeBonusCoins: number
 }
 
 interface Photo {

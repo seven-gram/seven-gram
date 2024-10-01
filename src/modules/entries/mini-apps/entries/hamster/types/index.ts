@@ -1,5 +1,5 @@
-export * from './clicker-user.js'
 export * from './daily-cipher.js'
 export * from './promocodes.js'
 export * from './task.js'
 export * from './upgrades-for-buy.js'
+export * from './user.js'

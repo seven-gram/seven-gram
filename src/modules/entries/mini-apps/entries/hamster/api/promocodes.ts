@@ -9,7 +9,7 @@ export interface GetPromoCodesResponse {
 
 export async function getPromos(axiosClient: AxiosInstance): Promise<GetPromoCodesResponse> {
   const response = await axiosClient.post<GetPromoCodesResponse>(
-    'https://api.hamsterkombatgame.io/clicker/get-promos',
+    'https://api.hamsterkombatgame.io/interlude/get-promos',
     null,
   )
 
@@ -17,13 +17,13 @@ export async function getPromos(axiosClient: AxiosInstance): Promise<GetPromoCod
 }
 
 export interface ApplyPromoCodeResponse {
-  clickerUser: HamsterTypes.ClickerUser
+  interludeUser: HamsterTypes.InterludeUser
   promoState: HamsterTypes.PromoState
 }
 
 export async function applyPromoCode(axiosClient: AxiosInstance, promoCode: string): Promise<ApplyPromoCodeResponse> {
   const response = await axiosClient.post<ApplyPromoCodeResponse>(
-    'https://api.hamsterkombatgame.io/clicker/apply-promo',
+    'https://api.hamsterkombatgame.io/interlude/apply-promo',
     { promoCode },
   )
 

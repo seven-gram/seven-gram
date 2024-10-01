@@ -2,7 +2,7 @@ import type { AxiosInstance } from 'axios'
 import type { HamsterTypes } from '../index.js'
 
 interface TapResponse {
-  clickerUser: HamsterTypes.ClickerUser
+  interludeUser: HamsterTypes.InterludeUser
 }
 
 export async function tap(
@@ -11,7 +11,7 @@ export async function tap(
   count: number,
 ): Promise<TapResponse> {
   const response = await axiosClient.post<TapResponse>(
-    'https://api.hamsterkombatgame.io/clicker/tap',
+    'https://api.hamsterkombatgame.io/interlude/tap',
     {
       availableTaps,
       count,

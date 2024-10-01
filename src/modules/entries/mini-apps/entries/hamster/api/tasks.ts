@@ -7,7 +7,7 @@ interface GetTasksListResponse {
 
 export async function getTasksList(axiosClient: AxiosInstance): Promise<GetTasksListResponse> {
   const response = await axiosClient.post<GetTasksListResponse>(
-    'https://api.hamsterkombatgame.io/clicker/list-tasks',
+    'https://api.hamsterkombatgame.io/interlude/list-tasks',
     null,
   )
 
@@ -15,13 +15,13 @@ export async function getTasksList(axiosClient: AxiosInstance): Promise<GetTasks
 }
 
 interface CheckTasksResponse {
-  clickerUser: HamsterTypes.ClickerUser
+  interludeUser: HamsterTypes.InterludeUser
   task: HamsterTypes.Task
 }
 
 export async function checkTask(axiosClient: AxiosInstance, taskId: string): Promise<CheckTasksResponse> {
   const response = await axiosClient.post<CheckTasksResponse>(
-    'https://api.hamsterkombatgame.io/clicker/check-task',
+    'https://api.hamsterkombatgame.io/interlude/check-task',
     { taskId },
   )
 
