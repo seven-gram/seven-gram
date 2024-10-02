@@ -263,7 +263,7 @@ export const hamsterMiniApp = defineMiniApp({
             || upgradeForBuy.isExpired
             || upgradeForBuy.price <= 0
             || interludeUser.balanceDiamonds < upgradeForBuy.price
-            || (upgradeForBuy.price / upgradeForBuy.profitPerHourDelta) > 10000
+            || (upgradeForBuy.price / upgradeForBuy.profitPerHourDelta) > 100
           ) {
             continue
           }
