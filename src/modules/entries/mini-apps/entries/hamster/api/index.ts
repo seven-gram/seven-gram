@@ -3,6 +3,7 @@ import { getAccountInfo } from './account-info.js'
 import { authByTelegramWebapp } from './auth.js'
 import { getConfig } from './config.js'
 import { claimDailyCipher } from './daily-cipher.js'
+import { getIp } from './ip.js'
 import { claimDailyKeysMinigame, startDailyKeysMinigame } from './minigame.js'
 import { applyPromoCode, getPromos, getPromosSettings } from './promocodes.js'
 import { tap } from './tap.js'
@@ -26,4 +27,5 @@ export const HamsterApi = defineMiniAppApi({
   checkTask,
   getUpgradesForBuy,
   buyUpgrade,
+  getIp,
 })

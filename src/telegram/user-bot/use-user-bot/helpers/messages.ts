@@ -7,12 +7,25 @@ import { NewMessage } from 'telegram/events/NewMessage.js'
 
 export async function waitForIncommingMessage(client: TelegramClient, options: Pick<NewMessage, 'fromUsers' | 'pattern'>) {
   return new Promise<NewMessageEvent>((resolve) => {
-    const eventHandler = (event: NewMessageEvent) => {
-      resolve(event)
+    const eventHandler = (messageEvent: NewMessageEvent) => {
+      resolve(messageEvent)
       client.removeEventHandler(eventHandler, new NewMessage({}))
     }
     client.addEventHandler(eventHandler, new NewMessage({
       incoming: true,
+      ...options,
+    }))
+  })
+}
+
+export async function waitForOutgoingMessage(client: TelegramClient, options?: Pick<NewMessage, 'fromUsers' | 'pattern'>) {
+  return new Promise<NewMessageEvent>((resolve) => {
+    const eventHandler = (messageEvent: NewMessageEvent) => {
+      resolve(messageEvent)
+      client.removeEventHandler(eventHandler, new NewMessage({}))
+    }
+    client.addEventHandler(eventHandler, new NewMessage({
+      outgoing: true,
       ...options,
     }))
   })

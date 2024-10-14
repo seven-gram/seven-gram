@@ -15,57 +15,103 @@ export interface ConfigOptions<
   extendCallback?: (database: LowSync<GDatabase>) => GExtendConfig
 }
 
-export interface CommandEvent {
-  type: 'command'
-  command: {
-    pattern: string
-    description: string
-    handler: (options: {
-      event: NewMessageEvent
-      plainMessage?: string | undefined
-    }) => Promise<void> | void
-  }
+export interface CommonCommandFields {
+  pattern: string
+  description: string
 }
 
-type Event = (CommandEvent)
+export interface PlainTextOptions<GRequired extends boolean> {
+  required: GRequired
+  helpText: string
+}
 
-interface ModuleOptionsStaticOptions {
+type CommandHandler<GRequired extends boolean | undefined> = (
+  options: GRequired extends undefined
+    ? {
+        messageEvent: NewMessageEvent
+      }
+    : GRequired extends true ? {
+      messageEvent: NewMessageEvent
+      plainText: string
+    } : {
+      messageEvent: NewMessageEvent
+      plainText?: string
+    }
+) => Promise<void> | void
+
+export type CommandOptions<GRequired extends boolean | undefined> =
+  CommonCommandFields & {
+    plainText?: PlainTextOptions<NeverIfNullable<GRequired>>
+    handler: CommandHandler<GRequired>
+  }
+export type Command = CommandOptions<boolean | undefined> & {
+  checkIsMatchWithPattern: (
+    message: string,
+    needToCheckPrefix?: boolean
+  ) => boolean
+}
+
+export type CommandSettingsOptions =
+|({ type: 'base' } & { command: Command })
+|({ type: 'parrent' } & CommonCommandFields & { commands: Command[] })
+
+type CommandSettings = CommandSettingsOptions & {
+  matchCommand: (messageEvent: NewMessageEvent) => Command | undefined
+}
+
+export interface CommandEventOptions {
+  type: 'command'
+  commandSettings: CommandSettingsOptions
+}
+
+export interface CommandEvent extends CommandEventOptions {
+  commandSettings: CommandSettings
+}
+
+type EventOptions = (CommandEventOptions)
+export type Event = (CommandEvent)
+
+interface CommonModuleOptionsOptions {
   name: string
   description: string
   onInit?: () => void | Promise<void>
+  event?: EventOptions
+}
+
+interface CommonModuleOptions extends CommonModuleOptionsOptions {
   event?: Event
 }
 
 type BaseDefineModuleOptions<
-  GDatabase extends AnyRecord | undefined,
-  GExtendConfig extends AnyRecord | undefined,
-> = GExtendConfig extends undefined ? ModuleOptionsStaticOptions :
-  ModuleOptionsStaticOptions & {
-    configOptions: ConfigOptions<NeverIfNullable<GDatabase>, NeverIfNullable<GExtendConfig>>
+  GModuleConfig,
+> = GModuleConfig extends undefined
+  ? CommonModuleOptionsOptions
+  : CommonModuleOptionsOptions & {
+    config: GModuleConfig
   }
 
-export type DefineModuleOptions<
-  GDatabase extends AnyRecord | undefined = AnyRecord | undefined,
-  GExtendConfig extends AnyRecord | undefined = AnyRecord | undefined,
-> = BaseDefineModuleOptions<GDatabase, GExtendConfig>
+export type DefineModuleOptions<GModuleConfig = undefined> =
+BaseDefineModuleOptions<GModuleConfig>
 
 interface ModuleConfigStaticOptions<GConfigOptions extends ConfigOptions> {
   database: LowSync<GConfigOptions['defaultValue']>
 }
 
 export type ModuleConfig<
-  GConfigOptions extends ConfigOptions<any>,
-  GExtendRecord = GConfigOptions['extendCallback'] extends undefined ? undefined : ReturnType<NeverIfNullable<GConfigOptions['extendCallback']>>,
+  GConfigOptions extends ConfigOptions<any> = ConfigOptions<any>,
+  GExtendRecord = GConfigOptions['extendCallback'] extends undefined
+    ? undefined
+    : ReturnType<NeverIfNullable<GConfigOptions['extendCallback']>>,
 > = (
   GExtendRecord extends undefined ? ModuleConfigStaticOptions<GConfigOptions> : ModuleConfigStaticOptions<GConfigOptions> & {
     [Key in keyof NeverIfNullable<GExtendRecord>]: NeverIfNullable<GExtendRecord>[Key]
   })
 
-type BaseModule<GConfigOptions extends ConfigOptions | undefined> =
-GConfigOptions extends undefined ? ModuleOptionsStaticOptions
-  : (ModuleOptionsStaticOptions & {
-      config: ModuleConfig<NeverIfNullable<GConfigOptions>>
+type BaseModule<GConfig extends ModuleConfig | undefined> =
+GConfig extends undefined ? CommonModuleOptions
+  : (CommonModuleOptions & {
+      config: GConfig
     })
 
-export type Module<GConfigOptions extends ConfigOptions | undefined = ConfigOptions | undefined> =
-  BaseModule<GConfigOptions>
+export type Module<GConfig extends ModuleConfig | undefined = ModuleConfig | undefined> =
+  BaseModule<GConfig>

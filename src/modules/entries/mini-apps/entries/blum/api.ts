@@ -1,6 +1,6 @@
 import type { AxiosInstance } from 'axios'
-import { doFloodProtect } from 'src/telegram/helpers/index.js'
-import { useUserBot } from 'src/telegram/index.js'
+import type { TelegramClient } from 'telegram'
+import { doFloodProtect, getWebAppData } from 'src/telegram/helpers/index.js'
 import { defineMiniAppApi } from '../../helpers/define.js'
 import { BlumStatic } from './static.js'
 
@@ -18,9 +18,8 @@ export interface GetTokenResult {
   justCreated: boolean
 }
 
-async function getToken(axiosClient: AxiosInstance) {
-  const userBot = await useUserBot()
-  const webAppData = await userBot.getWebAppData(BlumStatic.BOT_ENTITY, BlumStatic.URL)
+async function getToken(axiosClient: AxiosInstance, telegramClient: TelegramClient) {
+  const webAppData = await getWebAppData(telegramClient, BlumStatic.BOT_ENTITY, BlumStatic.URL)
 
   let data
   try {

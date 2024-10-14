@@ -8,7 +8,7 @@ import { AppMeta } from 'src/meta.js'
 import { sleep } from 'src/shared.js'
 import { Telegraf } from 'telegraf'
 import { TelegramMeta } from '../meta.js'
-import { useUserBot } from '../user-bot/use-user-bot.js'
+import { useUserBot } from '../user-bot/index.js'
 
 async function createBot() {
   const userBot = await useUserBot()

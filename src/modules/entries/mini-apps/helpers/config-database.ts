@@ -12,17 +12,14 @@ export function createMiniAppConfigDatabase(name: MiniAppName) {
       mkdirSync(dir, { recursive: true })
     }
 
-    const database = JSONFileSyncPreset<MiniAppConfig>
-    (`${dir}/${name}-config.json`, { sessions: {} })
+    const database = JSONFileSyncPreset<MiniAppConfig>(`${dir}/${name}-config.json`, { sessions: {} })
 
-    const updateSessionLoginHeaders: MiniAppConfigDatabase['updateSessionLoginHeaders'] = (
+    const updateSessionAxiosDefaults: MiniAppConfigDatabase['updateSessionAxiosDefaults'] = (
       sessionId,
-      headers,
+      axiosDefaults,
     ) => {
       database.data.sessions[sessionId] ??= {}
-      database.data.sessions[sessionId].headersWrapper = {
-        headers,
-      }
+      database.data.sessions[sessionId].axiosDefaults = axiosDefaults
       database.write()
     }
 
@@ -51,7 +48,7 @@ export function createMiniAppConfigDatabase(name: MiniAppName) {
 
     return {
       database,
-      updateSessionLoginHeaders,
+      updateSessionAxiosDefaults,
       updateCallbackEntity,
       getCallbackEntity,
     }

@@ -1,7 +1,7 @@
 import type { Api } from 'telegram'
 import { AppMeta } from 'src/meta.js'
 import { useBot, useUserBot } from 'src/telegram/index.js'
-import { defineModule } from '../../helpers/define.js'
+import { defineModule, defineModuleCommand, defineModuleConfig } from '../../helpers/define.js'
 import { reloadApplication } from './helpers/reload.js'
 
 const NAME = 'Reloader'
@@ -26,7 +26,7 @@ const bot = await useBot()
 export const reloadModule = defineModule({
   name: NAME,
   description: `Reloads current ${AppMeta.name} process`,
-  configOptions: {
+  config: defineModuleConfig({
     name: NAME.toLowerCase(),
     defaultValue,
     extendCallback(database) {
@@ -51,15 +51,18 @@ export const reloadModule = defineModule({
         setBotMessageToEdit,
       }
     },
-  },
+  }),
   event: {
     type: 'command',
-    command: {
-      pattern: 'reload',
-      description: `Reloads current ${AppMeta.name} process`,
-      async handler({ event }) {
-        await reloadApplication(event.message)
-      },
+    commandSettings: {
+      type: 'base',
+      command: defineModuleCommand({
+        pattern: 'reload',
+        description: `Reloads current ${AppMeta.name} process`,
+        async handler({ messageEvent }) {
+          await reloadApplication(messageEvent.message)
+        },
+      }),
     },
   },
   async onInit() {

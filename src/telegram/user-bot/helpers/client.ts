@@ -1,36 +1,41 @@
-import type { TelegramClient } from 'telegram'
-import prompts from 'prompts'
-import { systemLogger } from 'src/logger.js'
+import type { Proxy } from 'src/modules/entries/mini-apps/config.js'
+import type { Api } from 'telegram'
+import { TelegramClient } from 'telegram'
+import { StringSession } from 'telegram/sessions/StringSession.js'
+import { promptApiData } from './prompts.js'
 
-export async function startClient(client: TelegramClient): Promise<void> {
-  return client.start({
-    phoneNumber: async () =>
-      (
-        await prompts({
-          message: 'Enter your phone number',
-          name: 'phoneNumber',
-          type: 'text',
-        })
-      ).phoneNumber,
+export function createClient(options: {
+  apiId: number
+  apiHash: string
+  sessionString?: string
+  proxy?: Proxy
+}) {
+  const { apiHash, apiId, proxy, sessionString = '' } = options
+  return new TelegramClient(
+    new StringSession(sessionString),
+    apiId,
+    apiHash,
+    {
+      connectionRetries: 2,
+      proxy: proxy
+        ? {
+            socksType: 5,
+            ...proxy,
+          }
+        : undefined,
+    },
+  )
+}
 
-    password: async () =>
-      (
-        await prompts({
-          message: 'Enter your password',
-          name: 'password',
-          type: 'password',
-        })
-      ).password,
-
-    phoneCode: async () =>
-      (
-        await prompts({
-          message: 'Enter the code you recived',
-          name: 'phoneCode',
-          type: 'text',
-        })
-      ).phoneCode,
-
-    onError: (error) => { systemLogger.error(error.message) },
+export async function promptNewClient(
+  proxy?: Proxy,
+  message?: Api.Message,
+) {
+  const { apiId, apiHash } = await promptApiData(message)
+  const client = createClient({
+    apiId,
+    apiHash,
   })
+
+  return client
 }

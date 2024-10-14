@@ -1,11 +1,11 @@
-import type { AxiosError, AxiosInstance, HeadersDefaults } from 'axios'
+import type { AxiosError, AxiosInstance } from 'axios'
 import type axios from 'axios'
 import type { CronJobParams, CronTime } from 'cron'
 import type { LowSync } from 'lowdb'
 import type { randomInt as _randomInt } from 'node:crypto'
 import type { Logger } from 'src/logger.js'
 import type { createCronTimeoutWithDeviation as _createCronTimeoutWithDeviation, MaybePromiseLike, OmitFirstArg } from 'src/shared.js'
-import type { UserBot } from 'src/telegram/user-bot/types.js'
+import type { TelegramClient } from 'telegram'
 import type { MiniAppName } from './enums.js'
 
 export type MiniAppApi = {
@@ -18,10 +18,8 @@ interface CallbackEntityConfig {
 
 export interface MiniAppConfig {
   sessions: {
-    [Id in number]?: {
-      headersWrapper?: {
-        headers: HeadersDefaults
-      }
+    [name in string]?: {
+      axiosDefaults?: typeof axios.defaults
       callbackEntities?: {
         [Hash in string]?: CallbackEntityConfig
       }
@@ -37,21 +35,22 @@ export interface CallbackEntityConfigHashOptions {
 
 export interface MiniAppConfigDatabase {
   database: LowSync<MiniAppConfig>
-  updateSessionLoginHeaders: (sessionId: number, headers: HeadersDefaults) => void
+  updateSessionAxiosDefaults: (sessionName: string, axiosDefaults: typeof axios.defaults) => void
   updateCallbackEntity: (
-    sessionId: number,
+    sessionName: string,
     entityOptions: CallbackEntityConfigHashOptions,
     updateInput: CallbackEntityConfig
   ) => void
   getCallbackEntity: (
-    sessionId: number,
+    sessionName: string,
     entityOptions: CallbackEntityConfigHashOptions
   ) => CallbackEntityConfig | undefined
 }
 
-type MiniAppCallback<Name, Api> = (context: MiniApp<Name, Api>['public'] & {
+type MiniAppCallback<Api> = (context: {
   axiosClient: AxiosInstance
-  userBot: UserBot
+  logger: Logger
+  telegramClient: TelegramClient
   api: {
     [Key in keyof Api]: OmitFirstArg<Api[Key]>
   }
@@ -59,14 +58,14 @@ type MiniAppCallback<Name, Api> = (context: MiniApp<Name, Api>['public'] & {
   extraRestartTimeout?: number
 }>
 
-interface MiniAppCallbackEntity<Name, Api> {
+interface MiniAppCallbackEntity<Api> {
   name: string
   timeout: (options: {
     createCronTime: (cronJobParams: CronJobParams['cronTime']) => CronTime
     randomInt: typeof _randomInt
     createCronTimeoutWithDeviation: typeof _createCronTimeoutWithDeviation
   }) => number
-  callback: MiniAppCallback<Name, Api>
+  callback: MiniAppCallback<Api>
 }
 
 export interface DefineMiniAppOptions<Name, Api> {
@@ -74,18 +73,18 @@ export interface DefineMiniAppOptions<Name, Api> {
   api: Api
   configDatabase: MiniAppConfigDatabase
   login: {
-    callback: (createAxios: typeof axios.create) => Promise<AxiosInstance>
+    callback: (options: {
+      initialAxiosClient: AxiosInstance
+      telegramClient: TelegramClient
+    }) => Promise<void>
   }
-  onResponseRejected?: (
-    error: AxiosError,
-    axiosClient: AxiosInstance,
-    createAxios: typeof axios.create
-  ) => MaybePromiseLike<AxiosError | null | undefined>
-  callbackEntities: MiniAppCallbackEntity<Name, Api>[]
+  onResponseRejected?: (options: {
+    error: AxiosError
+    axiosClient: AxiosInstance
+    telegramClient: TelegramClient
+  }) => MaybePromiseLike<AxiosError | null | undefined>
+  callbackEntities: MiniAppCallbackEntity<Api>[]
 }
 
 export interface MiniApp<Name = MiniAppName, Api = MiniAppApi> extends DefineMiniAppOptions<Name, Api> {
-  public: {
-    logger: Logger
-  }
 }

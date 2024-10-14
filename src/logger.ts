@@ -6,7 +6,7 @@ type LoggerName = Uppercase<MiniAppName> | 'SYSTEM'
 
 export type Logger = ReturnType<typeof createLogger>
 
-export function createLogger(name: LoggerName = 'SYSTEM') {
+export function createLogger(name: LoggerName = 'SYSTEM', contextName?: string) {
   interface MessagesObject { plainMessage: string, markdownMessage: string }
   type PlainMessageOrMessagesObject = string | MessagesObject
 
@@ -37,19 +37,22 @@ export function createLogger(name: LoggerName = 'SYSTEM') {
       }
     }
 
+  const startStringOfPlainMessage = `${name}   ${contextName ? `|${contextName}| ` : ''}`
+  const startStringOfMarkdownMessage = `${name}   ${contextName ? `|${contextName}| ` : ''}`
+
   const info = logMethodFactory(message => ({
-    plainMessage: `📜 ${name}   ${message.plainMessage}`,
-    markdownMessage: `📜 *${name}*   ${message.markdownMessage}`,
+    plainMessage: `📜 ${startStringOfPlainMessage}${message.plainMessage}`,
+    markdownMessage: `📜 ${startStringOfMarkdownMessage}${message.markdownMessage}`,
   }))
 
   const success = logMethodFactory(message => ({
-    plainMessage: `✅️ ${name}   ${message.plainMessage}`,
-    markdownMessage: `✅️ *${name}*   ${message.markdownMessage}`,
+    plainMessage: `✅️ ${startStringOfPlainMessage}${message.plainMessage}`,
+    markdownMessage: `✅️ ${startStringOfMarkdownMessage}${message.markdownMessage}`,
   }))
 
   const error = logMethodFactory(message => ({
-    plainMessage: `🚨 ${name}   ${message.plainMessage}`,
-    markdownMessage: `🚨 *${name}*   ${message.markdownMessage}`,
+    plainMessage: `🚨 ${startStringOfPlainMessage}${message.plainMessage}`,
+    markdownMessage: `🚨 ${startStringOfMarkdownMessage}${message.markdownMessage}`,
   }))
 
   return {

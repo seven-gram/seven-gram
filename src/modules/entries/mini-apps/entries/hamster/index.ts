@@ -20,18 +20,15 @@ export const hamsterMiniApp = defineMiniApp({
   api: HamsterApi,
   configDatabase: createMiniAppConfigDatabase(MiniAppName.HAMSTER),
   login: {
-    async callback(createAxios) {
-      const axiosClient = createAxios({ headers: HamsterStatic.DEFAULT_HEADERS })
-      const { authToken } = await HamsterApi.authByTelegramWebapp(axiosClient)
-      axiosClient.defaults.headers.common.Authorization = `Bearer ${authToken}`
-
-      return axiosClient
+    async callback({ initialAxiosClient, telegramClient }) {
+      initialAxiosClient.defaults.headers.common = HamsterStatic.DEFAULT_HEADERS
+      const { authToken } = await HamsterApi.authByTelegramWebapp(initialAxiosClient, telegramClient)
+      initialAxiosClient.defaults.headers.common.Authorization = `Bearer ${authToken}`
     },
   },
-  async onResponseRejected(error, axiosClient, createAxios) {
+  async onResponseRejected({ error, axiosClient, telegramClient }) {
     if (error.response?.status === 401) {
-      const cleanAxiosClient = createAxios({ headers: HamsterStatic.DEFAULT_HEADERS })
-      const { authToken } = await HamsterApi.authByTelegramWebapp(cleanAxiosClient)
+      const { authToken } = await HamsterApi.authByTelegramWebapp(axiosClient, telegramClient)
       axiosClient.defaults.headers.common.Authorization = `Bearer ${authToken}`
     }
     else {

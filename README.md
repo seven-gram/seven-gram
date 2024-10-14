@@ -35,6 +35,8 @@ You can install these by [this link](https://nodejs.org/en/download/)
 
 ## Notes 📝
 
+- To run farming mini apps on main session type `.miniapps togglemainsession`. To add additional sessions type `.miniapps addsession`
+
 - User commands (e.g., .help, .update, etc.) do not work in `Saved Messages`
 
 - Currently, there are no settings avaliable, so when you start the app, the bot will automatically play all supported minigames

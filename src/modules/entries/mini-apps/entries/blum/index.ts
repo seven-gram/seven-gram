@@ -13,18 +13,16 @@ export const blumMiniApp = defineMiniApp({
   api: BlumApi,
   configDatabase: createMiniAppConfigDatabase(MiniAppName.BLUM),
   login: {
-    async callback(createAxios) {
-      const axiosClient = createAxios({ headers: BlumStatic.DEFAULT_HEADERS })
-      const { authToken } = await BlumApi.getToken(axiosClient)
-      axiosClient.defaults.headers.common.Authorization = `Bearer ${authToken}`
-
-      return axiosClient
+    async callback({ initialAxiosClient, telegramClient }) {
+      initialAxiosClient.defaults.headers.common = BlumStatic.DEFAULT_HEADERS
+      const { authToken } = await BlumApi.getToken(initialAxiosClient, telegramClient)
+      initialAxiosClient.defaults.headers.common.Authorization = `Bearer ${authToken}`
     },
   },
-  async onResponseRejected(error, axiosClient, createAxios) {
+  async onResponseRejected({ error, axiosClient, telegramClient }) {
     if (error.response?.status === 401) {
-      const cleanAxiosClient = createAxios({ headers: BlumStatic.DEFAULT_HEADERS })
-      const { authToken } = await BlumApi.getToken(cleanAxiosClient)
+      axiosClient.defaults.headers.common.Authorization = undefined
+      const { authToken } = await BlumApi.getToken(axiosClient, telegramClient)
       axiosClient.defaults.headers.common.Authorization = `Bearer ${authToken}`
     }
     else {
