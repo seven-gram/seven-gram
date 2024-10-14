@@ -1,7 +1,7 @@
 {
   "name": "seven-gram",
   "type": "module",
-  "version": "0.2.14",
+  "version": "0.3.0",
   "description": "Telegram userbot written on Nodejs. Support popular miniapps like Hamster Kombat, Blum, TapSwap, Dogs, Major, OKX Racer and others.",
   "author": {
     "name": "pvmsnd",
