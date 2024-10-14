@@ -130,7 +130,7 @@ export interface StartGameResult {
 
 async function startGame(axiosClient: AxiosInstance) {
   const { data } = await axiosClient<StartGameResult>({
-    url: 'https://game-domain.blum.codes/api/v1/game/play',
+    url: 'https://game-domain.blum.codes/api/v2/game/play',
     method: 'POST',
     data: null,
   })
@@ -139,7 +139,7 @@ async function startGame(axiosClient: AxiosInstance) {
 
 async function claimGame(axiosClient: AxiosInstance, gameId: string, points: number) {
   await axiosClient({
-    url: `https://game-domain.blum.codes/api/v1/game/claim`,
+    url: `https://game-domain.blum.codes/api/v2/game/claim`,
     method: 'POST',
     data: {
       gameId,
