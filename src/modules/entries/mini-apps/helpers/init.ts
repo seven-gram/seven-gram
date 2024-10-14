@@ -18,7 +18,10 @@ export async function initMiniApps() {
   foreachTelegramClients(async (sessionName, client, proxy) => {
     for (const miniApp of miniApps) {
       (() => {
-        const callbacksQueue = createCallbacksQueue(client)
+        const callbacksQueue = createCallbacksQueue({
+          sessionName,
+          telegramClient: client,
+        })
         const useAxiosClient = useAxiosClientFactory(sessionName, client, miniApp, proxy)
         const configDatabase = miniApp.configDatabase
 
@@ -131,7 +134,9 @@ function useAxiosClientFactory(
     const axiosDefaults = session?.axiosDefaults
 
     if (!axiosDefaults) {
-      await telegramClient.connect()
+      if (!telegramClient.connected) {
+        await telegramClient.connect()
+      }
 
       axiosClient = axios.create(
         proxy
@@ -189,7 +194,9 @@ function useAxiosClientFactory(
             return Promise.reject(error)
 
           try {
-            await telegramClient.connect()
+            if (!telegramClient.connected) {
+              await telegramClient.connect()
+            }
             const onResponseRejectedResult = await onResponseRejected({
               error,
               axiosClient,
@@ -241,13 +248,19 @@ function foreachTelegramClients(
     })
 }
 
-function createCallbacksQueue(telegramClient: TelegramClient) {
+function createCallbacksQueue(options: {
+  sessionName: string
+  telegramClient: TelegramClient
+}) {
+  const { sessionName, telegramClient } = options
+
+  const isMainSession = sessionName === MiniAppsStatic.reservedMainSessionName
   const callbacksQueueEntries: [AnyFn, () => Promise<void>][] = [];
 
   (async () => {
     while (true) {
       if (callbacksQueueEntries.length) {
-        if (!telegramClient.connected) {
+        if (!telegramClient.connected && !isMainSession) {
           await telegramClient.connect()
         }
 
@@ -258,7 +271,7 @@ function createCallbacksQueue(telegramClient: TelegramClient) {
           void 0
         }
 
-        if (!callbacksQueueEntries.length) {
+        if (!callbacksQueueEntries.length && !isMainSession) {
           await telegramClient.disconnect()
         }
       }
