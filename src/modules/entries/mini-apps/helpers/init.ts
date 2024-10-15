@@ -28,7 +28,7 @@ export async function initMiniApps() {
         for (const [callbackEntity, callbackEntityIndex] of miniApp.callbackEntities.map((value, index) => [value, index] as const)) {
           const logger = createLogger(
             miniApp.name.toUpperCase() as Uppercase<typeof miniApp.name>,
-            callbackEntity.name,
+            `${callbackEntity.name} (${sessionName})`,
           )
 
           const callbackEntityConfig = configDatabase.getCallbackEntity(
