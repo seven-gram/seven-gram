@@ -1,6 +1,5 @@
 import { randomInt } from 'node:crypto'
-import { AxiosError } from 'axios'
-import { convertToMilliseconds, sleep } from 'src/shared.js'
+import { convertToMilliseconds } from 'src/shared.js'
 import { doFloodProtect } from 'src/telegram/helpers/index.js'
 import { MiniAppName } from '../../enums.js'
 import { createMiniAppConfigDatabase } from '../../helpers/config-database.js'
@@ -98,80 +97,82 @@ export const blumMiniApp = defineMiniApp({
         convertToMilliseconds({ hours: 8, minutes: 5 }),
       ),
     },
-    {
-      name: 'Play Passes',
-      async callback({ logger, api }) {
-        const POINTS_PER_GAME = [200, 230] as const
-        let balance = await api.getBalance()
+    // {
+    //   name: 'Play Passes',
+    //   async callback({ logger, api }) {
+    //     const POINTS_PER_GAME = [200, 230] as const
+    //     let balance = await api.getBalance()
 
-        if (!balance.playPasses) {
-          await logger.info(`There are no play passes. Sleep...`)
-          return
-        }
+    //     if (!balance.playPasses) {
+    //       await logger.info(`There are no play passes. Sleep...`)
+    //       return
+    //     }
 
-        const randomGamesCount = balance.playPasses <= 5
-          ? balance.playPasses
-          : randomInt(
-            5,
-            balance.playPasses < 10 ? balance.playPasses : 10,
-          )
-        await logger.info(`Starting ${randomGamesCount} game sessions`)
+    //     const randomGamesCount = balance.playPasses <= 5
+    //       ? balance.playPasses
+    //       : randomInt(
+    //         5,
+    //         balance.playPasses < 10 ? balance.playPasses : 10,
+    //       )
+    //     await logger.info(`Starting ${randomGamesCount} game sessions`)
 
-        let claimedGamesCount = 0
-        for (let i = 0; i < randomGamesCount; i++) {
-          try {
-            const { gameId } = await api.startGame()
-            const timeToSleep = randomInt(
-              convertToMilliseconds({ seconds: 29 }),
-              convertToMilliseconds({ seconds: 37 }),
-            )
-            const randomPointsCount = randomInt(POINTS_PER_GAME[0], POINTS_PER_GAME[1])
-            await logger.info(
-              `Starting ${gameId} game session...`
-              + `\nSleep time: ${timeToSleep / 1000} seconds`
-              + `\nPoints to farm : ${randomPointsCount}`,
-            )
-            await sleep(timeToSleep)
-            await api.claimGame(gameId, randomPointsCount)
-            balance = await api.getBalance()
-            await logger.success(
-              `Game session ${gameId} done.`
-              + `\nTotal points: ${balance.availableBalance} (+${randomPointsCount})`
-              + `\nPasses left: ${balance.playPasses}`,
-            )
-            await sleep(randomInt(
-              convertToMilliseconds({ seconds: 10 }),
-              convertToMilliseconds({ seconds: 20 }),
-            ))
-            claimedGamesCount++
-          }
-          catch (error) {
-            if (i === randomGamesCount - 1 && claimedGamesCount === 0) {
-              throw (error)
-            }
+    //     let claimedGamesCount = 0
+    //     for (let i = 0; i < randomGamesCount; i++) {
+    //       try {
+    //         const { gameId } = await api.startGame()
+    //         const timeToSleep = randomInt(
+    //           convertToMilliseconds({ seconds: 29 }),
+    //           convertToMilliseconds({ seconds: 37 }),
+    //         )
+    //         const randomPointsCount = randomInt(POINTS_PER_GAME[0], POINTS_PER_GAME[1])
+    //         await logger.info(
+    //           `Starting ${gameId} game session...`
+    //           + `\nSleep time: ${timeToSleep / 1000} seconds`
+    //           + `\nPoints to farm : ${randomPointsCount}`,
+    //         )
+    //         await sleep(timeToSleep)
+    //         await api.claimGame(gameId, randomPointsCount)
+    //         balance = await api.getBalance()
+    //         await logger.success(
+    //           `Game session ${gameId} done.`
+    //           + `\nTotal points: ${balance.availableBalance} (+${randomPointsCount})`
+    //           + `\nPasses left: ${balance.playPasses}`,
+    //         )
+    //         await sleep(randomInt(
+    //           convertToMilliseconds({ seconds: 10 }),
+    //           convertToMilliseconds({ seconds: 20 }),
+    //         ))
+    //         claimedGamesCount++
+    //       }
+    //       catch (error) {
+    //         if (i === randomGamesCount - 1 && claimedGamesCount === 0) {
+    //           throw (error)
+    //         }
 
-            if (error instanceof AxiosError) {
-              await logger.error(
-                `An error occurs while executing game iteration with index ${i + 1}`
-                + `\n\`\`\`Message: ${error.message}\`\`\``
-                + `\nSkipping game...`,
-              )
-              await sleep(convertToMilliseconds({ seconds: 15 }))
-            }
-          }
-        }
+    //         if (error instanceof AxiosError) {
+    //           console.error(error)
 
-        if (balance.playPasses) {
-          return {
-            extraRestartTimeout: randomInt(
-              convertToMilliseconds({ minutes: 25 }),
-              convertToMilliseconds({ minutes: 35 }),
-            ),
-          }
-        }
-      },
-      timeout: ({ createCronTimeoutWithDeviation }) =>
-        createCronTimeoutWithDeviation('0 11 * * *', convertToMilliseconds({ minutes: 30 })),
-    },
+    //           await logger.error(
+    //             `An error occurs while executing game iteration with index ${i + 1}`
+    //             + `\n\`\`\`Message: ${error.message}\`\`\``
+    //             + `\nSkipping game...`,
+    //           )
+    //           await sleep(convertToMilliseconds({ seconds: 15 }))
+    //         }
+    //       }
+    //     }
+
+    //     if (balance.playPasses) {
+    //       return {
+    //         extraRestartTimeout: randomInt(
+    //           convertToMilliseconds({ minutes: 25 }),
+    //           convertToMilliseconds({ minutes: 35 }),
+    //         ),
+    //       }
+    //     }
+    //   },
+    //   timeout: ({ createCronTimeoutWithDeviation }) =>
+    //     createCronTimeoutWithDeviation('0 11 * * *', convertToMilliseconds({ minutes: 30 })),
+    // },
   ],
 })
