@@ -78,8 +78,7 @@ export const addSessionCommand = defineModuleCommand({
 
     if (isDaemonMode) {
       const needToReload = await promptBoolean(
-        `Session ${name} added succesfully.`
-        + `\nNeed to reload for the changes to take effect. Would you like to reload now?`,
+        `Need to reload for the changes to take effect. Would you like to reload now?`,
         message,
       )
       if (needToReload) {

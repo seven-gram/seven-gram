@@ -1,6 +1,7 @@
 import type { Module } from '../types.js'
 import { useConfig } from 'src/config.js'
 import { defineModules } from '../helpers/define.js'
+import { brainRotDefenderModule } from './brain-rot-defender/index.js'
 import { helpModule } from './help.js'
 import { miniAppsModule } from './mini-apps/index.js'
 import { pingModule } from './ping.js'
@@ -17,6 +18,7 @@ const modulesArray: Module[] = [
   updateModule,
   helpModule,
   miniAppsModule,
+  brainRotDefenderModule,
 ]
 
 if (config.isDaemonMode) {
